@@ -1,7 +1,7 @@
 [
-  { "nom": "Avocat Hass x2", "code": "1234567890", "cat": "Fruits" },
-  { "nom": "Banane Cavendish", "code": "1234567890", "cat": "Fruits" },
+  { "nom": "Avocat Hass x2", "code": "3283440020129", "cat": "Fruits" },
+  { "nom": "Banane Cavendish", "code": "3800012345675", "cat": "Fruits" },
   { "nom": "Carotte vrac", "code": "1011", "cat": "Légumes" },
-  { "nom": "Pomme Gala", "code": "1234567890", "cat": "Fruits" },
-  { "nom": "pré enballé", "code": "1234567890", "cat": "Autres" }
+  { "nom": "Pomme Gala x4", "code": "3211234567895", "cat": "Fruits" },
+  { "nom": "Sac réutilisable", "code": "2000123", "cat": "Autres" }
 ]
