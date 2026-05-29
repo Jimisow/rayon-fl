@@ -239,20 +239,19 @@
         document.getElementById('modalCodeDisplay').textContent = product.code;
         
         const barcodeElement = document.getElementById('barcode');
-        
-        // On n'affiche le code-barres que si c'est un EAN13 (13 chiffres)
-        if (product.code.length === 13) {
-            barcodeElement.style.display = "block";
-            JsBarcode("#barcode", product.code, {
-                format: "EAN13",
-                lineColor: "#000",
-                width: 2,
-                height: 100,
-                displayValue: false
-            });
-        } else {
-            barcodeElement.style.display = "none";
-        }
+        barcodeElement.style.display = "block";
+
+        // Utilise EAN13 si 13 chiffres, sinon CODE128 (universel pour les codes courts)
+        const format = product.code.length === 13 ? "EAN13" : "CODE128";
+
+        JsBarcode("#barcode", product.code, {
+            format: format,
+            lineColor: "#000",
+            width: 2.5,
+            height: 120,
+            displayValue: false, // On l'affiche déjà en gros au-dessus
+            flat: true
+        });
 
         modal.style.display = "flex";
     }
