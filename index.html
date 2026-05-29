@@ -140,6 +140,19 @@
         #barcode {
             max-width: 100%;
         }
+
+        #installBtn {
+            display: none;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -149,6 +162,7 @@
 </header>
 
 <div class="container">
+    <button id="installBtn">Installer l'application sur l'écran d'accueil</button>
     <div class="search-controls">
         <input type="text" id="searchInput" placeholder="Rechercher un produit...">
         <select id="categoryFilter">
@@ -276,11 +290,28 @@
     // Initialisation
     loadProducts();
 
-    // Enregistrement du Service Worker pour la PWA
+    // Gestion de l'installation PWA
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') installBtn.style.display = 'none';
+            deferredPrompt = null;
+        }
+    });
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .catch(err => console.log('Service Worker: Erreur', err));
+            navigator.serviceWorker.register('./sw.js');
         });
     }
 </script>
