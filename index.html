@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Rayon Frais</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #e8f5e9;
+            --accent-green: #4caf50;
+            --text-dark: #1b5e20;
+            --bg-light: #f9fbf9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding-bottom: 20px;
+        }
+
+        header {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 2px solid var(--light-green);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-green);
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+            background-color: var(--light-green);
+        }
+
+        .product-info .nom {
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: block;
+        }
+
+        .product-info .cat-tag {
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            background: var(--light-green);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .big-code {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            color: #000;
+        }
+
+        #barcode {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Rayon Fruits & Légumes</h1>
+</header>
+
+<div class="container">
+    <div class="search-controls">
+        <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+        <select id="categoryFilter">
+            <option value="">Toutes les catégories</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Légumes">Légumes</option>
+            <option value="Exotiques">Exotiques</option>
+            <option value="Bio">Bio</option>
+            <option value="Autre">Autre</option>
+        </select>
+    </div>
+
+    <div id="productList" class="product-list">
+        <!-- Les produits s'afficheront ici -->
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="barcodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="modalProductName"></h2>
+        <div id="modalCodeDisplay" class="big-code"></div>
+        <svg id="barcode"></svg>
+    </div>
+</div>
+
+<script>
+    let allProducts = [];
+
+    async function loadProducts() {
+        try {
+            const response = await fetch('produits.json');
+            allProducts = await response.json();
+            displayProducts(allProducts);
+        } catch (error) {
+            console.error("Erreur lors du chargement des produits:", error);
+            document.getElementById('productList').innerHTML = "<p>Erreur de chargement des données.</p>";
+        }
+    }
+
+    function displayProducts(products) {
+        const list = document.getElementById('productList');
+        list.innerHTML = '';
+
+        const sorted = products.sort((a, b) => a.nom.localeCompare(b.nom));
+
+        sorted.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-info">
+                    <span class="nom">${p.nom}</span>
+                    <span class="cat-tag">${p.cat}</span>
+                </div>
+                <div style="color: #ccc;">➔</div>
+            `;
+            card.onclick = () => openModal(p);
+            list.appendChild(card);
+        });
+    }
+
+    function filterProducts() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const catTerm = document.getElementById('categoryFilter').value;
+
+        const filtered = allProducts.filter(p => {
+            const matchesSearch = p.nom.toLowerCase().includes(searchTerm) || p.code.includes(searchTerm);
+            const matchesCat = catTerm === "" || p.cat === catTerm;
+            return matchesSearch && matchesCat;
+        });
+
+        displayProducts(filtered);
+    }
+
+    function openModal(product) {
+        const modal = document.getElementById('barcodeModal');
+        document.getElementById('modalProductName').textContent = product.nom;
+        document.getElementById('modalCodeDisplay').textContent = product.code;
+        
+        const barcodeElement = document.getElementById('barcode');
+        
+        // On n'affiche le code-barres que si c'est un EAN13 (13 chiffres)
+        if (product.code.length === 13) {
+            barcodeElement.style.display = "block";
+            JsBarcode("#barcode", product.code, {
+                format: "EAN13",
+                lineColor: "#000",
+                width: 2,
+                height: 100,
+                displayValue: false
+            });
+        } else {
+            barcodeElement.style.display = "none";
+        }
+
+        modal.style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById('barcodeModal').style.display = "none";
+    }
+
+    // Fermer la modal en cliquant à côté
+    window.onclick = function(event) {
+        const modal = document.getElementById('barcodeModal');
+        if (event.target == modal) closeModal();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterProducts);
+    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+
+    // Initialisation
+    loadProducts();
+</script>
+
+</body>
+</html>
