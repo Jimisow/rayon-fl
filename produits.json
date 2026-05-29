@@ -3,4 +3,5 @@
   { "nom": "Banane Cavendish", "code": "1234567890", "cat": "Fruits" },
   { "nom": "Carotte vrac", "code": "1011", "cat": "Légumes" },
   { "nom": "Pomme Gala", "code": "1234567890", "cat": "Fruits" }
+  { "nom": "pré enballé", "code": "1234567890", "cat": "Autres" }
 ]
