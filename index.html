@@ -6,7 +6,13 @@
     <title>Gestion Rayon Frais</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
-    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=Rayon">
+
+    <!-- ✅ Apple PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Rayon Frais">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
         :root {
@@ -100,7 +106,6 @@
             display: inline-block;
         }
 
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -137,9 +142,7 @@
             color: #000;
         }
 
-        #barcode {
-            max-width: 100%;
-        }
+        #barcode { max-width: 100%; }
 
         #installBtn {
             display: none;
@@ -152,7 +155,22 @@
             width: 100%;
             font-weight: bold;
             cursor: pointer;
+            font-size: 1rem;
         }
+
+        /* ✅ Bandeau iOS : affiché uniquement sur Safari iOS si pas installé */
+        #iosBanner {
+            display: none;
+            background: #e8f5e9;
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            text-align: center;
+        }
+        #iosBanner span { font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -162,7 +180,14 @@
 </header>
 
 <div class="container">
-    <button id="installBtn">Installer l'application sur l'écran d'accueil</button>
+    <!-- Bouton install Android/Chrome -->
+    <button id="installBtn">📲 Installer l'application sur l'écran d'accueil</button>
+
+    <!-- ✅ Bandeau install iOS/Safari -->
+    <div id="iosBanner">
+        Pour installer l'app sur iPhone : appuyez sur <span>⎙</span> puis <strong>« Sur l'écran d'accueil »</strong>
+    </div>
+
     <div class="search-controls">
         <input type="text" id="searchInput" placeholder="Rechercher un produit...">
         <select id="categoryFilter">
@@ -173,9 +198,7 @@
         </select>
     </div>
 
-    <div id="productList" class="product-list">
-        <!-- Les produits s'afficheront ici -->
-    </div>
+    <div id="productList" class="product-list"></div>
 </div>
 
 <!-- Modal -->
@@ -194,36 +217,25 @@
     async function loadProducts() {
         try {
             const response = await fetch('produits.json');
-            if (!response.ok) {
-                throw new Error(`Fichier non trouvé ou erreur serveur (${response.status})`);
-            }
+            if (!response.ok) throw new Error(`Erreur serveur (${response.status})`);
             allProducts = await response.json();
             displayProducts(allProducts);
         } catch (error) {
-            console.error("Erreur lors du chargement des produits:", error);
             let message = "Erreur de chargement des données.";
-            
-            // Vérification si l'utilisateur ouvre le fichier sans serveur local
             if (window.location.protocol === 'file:') {
-                message = "<strong>Attention :</strong> L'application ne peut pas charger le fichier JSON si elle est ouverte directement (file://). <br><br>Veuillez utiliser un <strong>serveur local</strong> (ex: extension Live Server sur VS Code).";
+                message = "<strong>Attention :</strong> Ouvrez l'app via un <strong>serveur local</strong> (ex: Live Server sur VS Code), pas en file://.";
             } else {
                 message += `<br><small>${error.message}</small>`;
             }
-
             document.getElementById('productList').innerHTML = `
-                <div style="text-align:center; padding:20px; color: #d32f2f; background: #ffebee; border-radius: 8px; margin-top: 20px;">
-                    ${message}
-                </div>`;
+                <div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px;margin-top:20px">${message}</div>`;
         }
     }
 
     function displayProducts(products) {
         const list = document.getElementById('productList');
         list.innerHTML = '';
-
-        const sorted = products.sort((a, b) => a.nom.localeCompare(b.nom));
-
-        sorted.forEach(p => {
+        products.sort((a, b) => a.nom.localeCompare(b.nom)).forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
@@ -231,66 +243,43 @@
                     <span class="nom">${p.nom}</span>
                     <span class="cat-tag">${p.cat}</span>
                 </div>
-                <div style="color: #ccc;">➔</div>
-            `;
+                <div style="color:#ccc;">➔</div>`;
             card.onclick = () => openModal(p);
             list.appendChild(card);
         });
     }
 
     function filterProducts() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const catTerm = document.getElementById('categoryFilter').value;
-
-        const filtered = allProducts.filter(p => {
-            const matchesSearch = p.nom.toLowerCase().includes(searchTerm) || p.code.includes(searchTerm);
-            const matchesCat = catTerm === "" || p.cat === catTerm;
-            return matchesSearch && matchesCat;
-        });
-
-        displayProducts(filtered);
+        const s = document.getElementById('searchInput').value.toLowerCase();
+        const c = document.getElementById('categoryFilter').value;
+        displayProducts(allProducts.filter(p =>
+            (p.nom.toLowerCase().includes(s) || p.code.includes(s)) &&
+            (c === "" || p.cat === c)
+        ));
     }
 
     function openModal(product) {
-        const modal = document.getElementById('barcodeModal');
         document.getElementById('modalProductName').textContent = product.nom;
         document.getElementById('modalCodeDisplay').textContent = product.code;
-        
-        const barcodeElement = document.getElementById('barcode');
-        barcodeElement.style.display = "block";
-
-        // Utilise EAN13 si 13 chiffres, sinon CODE128 (universel pour les codes courts)
         const format = product.code.length === 13 ? "EAN13" : "CODE128";
-
         JsBarcode("#barcode", product.code, {
-            format: format,
-            lineColor: "#000",
-            width: 2.5,
-            height: 120,
-            displayValue: false, // On l'affiche déjà en gros au-dessus
-            flat: true
+            format, lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true
         });
-
-        modal.style.display = "flex";
+        document.getElementById('barcodeModal').style.display = "flex";
     }
 
     function closeModal() {
         document.getElementById('barcodeModal').style.display = "none";
     }
 
-    // Fermer la modal en cliquant à côté
-    window.onclick = function(event) {
-        const modal = document.getElementById('barcodeModal');
-        if (event.target == modal) closeModal();
-    }
+    window.onclick = e => { if (e.target == document.getElementById('barcodeModal')) closeModal(); };
 
     document.getElementById('searchInput').addEventListener('input', filterProducts);
     document.getElementById('categoryFilter').addEventListener('change', filterProducts);
 
-    // Initialisation
     loadProducts();
 
-    // Gestion de l'installation PWA
+    // ✅ Install PWA — Android / Chrome
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
 
@@ -309,12 +298,22 @@
         }
     });
 
+    // ✅ Bandeau iOS : Safari sur iPhone/iPad, pas déjà installé
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true;
+    if (isIos && isSafari && !isStandalone) {
+        document.getElementById('iosBanner').style.display = 'block';
+    }
+
+    // ✅ Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js')
+                .then(r => console.log('SW enregistré:', r.scope))
+                .catch(e => console.error('SW erreur:', e));
         });
     }
 </script>
-
 </body>
 </html>
