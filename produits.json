@@ -1,6 +1,6 @@
 [
-  { "nom": "Avocat Hass x2", "code": "3283440020123", "cat": "Fruits" },
-  { "nom": "Banane Cavendish", "code": "3800012345678", "cat": "Fruits" },
+  { "nom": "Avocat Hass x2", "code": "1234567890", "cat": "Fruits" },
+  { "nom": "Banane Cavendish", "code": "1234567890", "cat": "Fruits" },
   { "nom": "Carotte vrac", "code": "1011", "cat": "Légumes" },
-  { "nom": "Pomme Gala", "code": "3211234567890", "cat": "Fruits" }
+  { "nom": "Pomme Gala", "code": "1234567890", "cat": "Fruits" }
 ]
