@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rayon-frais-v1';
+const CACHE_NAME = 'rayon-frais-v2';
 const ASSETS = [
   './index.html',
   './produits.json',
@@ -12,29 +12,29 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting()) // Active immédiatement sans attendre
+      .then(() => self.skipWaiting()) // Active immÃ©diatement sans attendre
   );
 });
 
-// Activation : supprime les vieux caches et prend le contrôle immédiatement
+// Activation : supprime les vieux caches et prend le contrÃ´le immÃ©diatement
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       ))
-      .then(() => self.clients.claim()) // Prend le contrôle de tous les onglets ouverts
+      .then(() => self.clients.claim()) // Prend le contrÃ´le de tous les onglets ouverts
   );
 });
 
-// Stratégie Network-First pour les fichiers locaux (index, json, manifest)
-// Cache-First pour les CDN externes (pas besoin de re-télécharger à chaque fois)
+// StratÃ©gie Network-First pour les fichiers locaux (index, json, manifest)
+// Cache-First pour les CDN externes (pas besoin de re-tÃ©lÃ©charger Ã  chaque fois)
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   const isLocal = url.origin === self.location.origin;
 
   if (isLocal) {
-    // Network-First : essaie le réseau, met à jour le cache, fallback sur cache si offline
+    // Network-First : essaie le rÃ©seau, met Ã  jour le cache, fallback sur cache si offline
     e.respondWith(
       fetch(e.request)
         .then(networkRes => {
