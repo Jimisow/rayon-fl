@@ -388,8 +388,7 @@
     function openModal(product) {
         document.getElementById('modalProductName').textContent = product.nom;
         document.getElementById('modalCodeDisplay').textContent = product.code;
-        const format = product.code.length === 13 ? "EAN13" : "CODE128";
-        JsBarcode("#barcode", product.code, { format, lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true });
+        JsBarcode("#barcode", product.code, { format: "CODE128", lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true });
         document.getElementById('barcodeModal').style.display = "flex";
     }
     function closeModal() { document.getElementById('barcodeModal').style.display = "none"; }
