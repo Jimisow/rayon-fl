@@ -550,8 +550,32 @@
     if (isIos && isSafari && !window.navigator.standalone) {
         document.getElementById('iosBanner').style.display = 'block';
     }
+    // Service Worker : détection automatique des mises à jour
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        window.addEventListener('load', async () => {
+            const reg = await navigator.serviceWorker.register('./sw.js');
+
+            // Vérifie une mise à jour au lancement
+            reg.update();
+
+            // Si un nouveau SW est en attente, recharge automatiquement
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        // Nouveau contenu disponible → recharge silencieuse
+                        navigator.serviceWorker.controller.postMessage('skipWaiting');
+                        window.location.reload();
+                    }
+                });
+            });
+
+            // Recharge si le SW prend le contrôle (après activation)
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) { refreshing = true; window.location.reload(); }
+            });
+        });
     }
 </script>
 </body>
