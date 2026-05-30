@@ -11,7 +11,6 @@
     <meta name="apple-mobile-web-app-title" content="Rayon Frais">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <!-- Scanner de code-barres -->
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
@@ -22,245 +21,85 @@
             --bg-light: #f9fbf9;
         }
         * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            margin: 0;
-            padding-bottom: 80px;
-        }
-        header {
-            background-color: var(--primary-green);
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-light); color: var(--text-dark); margin: 0; padding-bottom: 80px; }
+        header { background: var(--primary-green); color: white; padding: 1rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
 
-        /* Barre de recherche avec croix */
+        /* Recherche */
         .search-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         .search-wrapper { position: relative; }
-        .search-wrapper input {
-            width: 100%;
-            padding: 12px 40px 12px 12px;
-            border: 2px solid var(--light-green);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-        }
+        .search-wrapper input { width: 100%; padding: 12px 40px 12px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; }
         .search-wrapper input:focus { border-color: var(--accent-green); }
-        .clear-search {
-            position: absolute;
-            right: 10px; top: 50%;
-            transform: translateY(-50%);
-            background: none; border: none;
-            font-size: 18px; color: #aaa;
-            cursor: pointer; display: none;
-            line-height: 1; padding: 4px;
-        }
-        .clear-search:hover { color: #555; }
-
-        select {
-            padding: 12px;
-            border: 2px solid var(--light-green);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            width: 100%;
-        }
+        .clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; color: #aaa; cursor: pointer; display: none; padding: 4px; line-height: 1; }
+        select { padding: 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; width: 100%; }
         select:focus { border-color: var(--accent-green); }
 
-        /* Liste produits */
+        /* Produits */
         .product-list { display: flex; flex-direction: column; gap: 10px; }
-        .product-card {
-            background: white; padding: 15px; border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer; transition: transform 0.1s;
-        }
-        .product-card:active { transform: scale(0.98); background-color: var(--light-green); }
+        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s; }
+        .product-card:active { transform: scale(0.98); background: var(--light-green); }
         .product-info .nom { font-weight: bold; font-size: 1.1rem; display: block; }
-        .product-info .cat-tag {
-            font-size: 0.8rem; color: var(--primary-green);
-            background: var(--light-green); padding: 2px 8px;
-            border-radius: 10px; margin-top: 4px; display: inline-block;
-        }
+        .product-info .cat-tag { font-size: 0.8rem; color: var(--primary-green); background: var(--light-green); padding: 2px 8px; border-radius: 10px; margin-top: 4px; display: inline-block; }
 
-        /* Modal code-barres */
-        .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
-        .modal-content {
-            background: white; width: 90%; max-width: 400px;
-            padding: 20px; border-radius: 15px;
-            text-align: center; position: relative;
-        }
-        .close-btn {
-            position: absolute; top: 10px; right: 15px;
-            font-size: 24px; cursor: pointer; color: #666;
-        }
-        .big-code {
-            font-size: 2.5rem; font-weight: bold;
-            letter-spacing: 5px; margin: 20px 0; color: #000;
-        }
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-content.left { text-align: left; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; }
+        .big-code { font-size: 2.5rem; font-weight: bold; letter-spacing: 5px; margin: 20px 0; color: #000; }
         #barcode { max-width: 100%; }
 
-        /* Bouton + flottant */
-        .fab {
-            position: fixed; bottom: 25px; right: 25px;
-            width: 58px; height: 58px; border-radius: 50%;
-            background: var(--primary-green); color: white;
-            font-size: 32px; border: none; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 500; transition: background 0.2s;
-        }
-        .fab:hover { background: var(--accent-green); }
-
-        /* Modal scanner / ajout produit */
-        .modal-scan .modal-content {
-            max-height: 90vh; overflow-y: auto;
-            text-align: left;
-        }
-        .modal-scan h2 { text-align: center; margin-top: 0; color: var(--primary-green); }
-
-        /* Tabs */
-        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tab-btn {
-            flex: 1; padding: 10px; border: 2px solid var(--light-green);
-            background: white; border-radius: 8px; cursor: pointer;
-            font-size: 14px; font-weight: 600; color: var(--text-dark);
-            transition: all 0.2s;
-        }
-        .tab-btn.active {
-            background: var(--primary-green); color: white;
-            border-color: var(--primary-green);
-        }
-
-        #scannerView { width: 100%; border-radius: 8px; overflow: hidden; }
-        #html5-qrcode-button-camera-start,
-        #html5-qrcode-button-camera-stop { display: none; }
-
+        /* Formulaires */
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 12px;
-            border: 2px solid var(--light-green);
-            border-radius: 8px; font-size: 15px;
-        }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 15px; }
         .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
 
-        .btn-validate {
-            width: 100%; padding: 13px; background: var(--primary-green);
-            color: white; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 6px;
-        }
-        .btn-validate:hover { background: var(--accent-green); }
+        /* Boutons */
+        .btn-primary { width: 100%; padding: 13px; background: var(--primary-green); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 6px; }
+        .btn-primary:hover { background: var(--accent-green); }
+        .btn-danger { padding: 11px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-secondary { padding: 11px; background: #eee; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-copy { padding: 11px; background: var(--primary-green); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
 
-        /* Page buffer JSON */
-        .modal-buffer .modal-content {
-            max-height: 90vh; overflow-y: auto; text-align: left;
-        }
-        .modal-buffer h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
-        #jsonOutput {
-            background: #1e1e1e; color: #a8d8a8;
-            font-family: monospace; font-size: 13px;
-            padding: 15px; border-radius: 8px;
-            white-space: pre-wrap; word-break: break-all;
-            min-height: 80px; max-height: 50vh; overflow-y: auto;
-            margin-bottom: 12px;
-        }
-        .buffer-actions { display: flex; gap: 10px; }
-        .btn-copy {
-            flex: 1; padding: 11px; background: var(--primary-green);
-            color: white; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: bold; cursor: pointer;
-        }
-        .btn-clear {
-            flex: 1; padding: 11px; background: #d32f2f;
-            color: white; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: bold; cursor: pointer;
-        }
-        .buffer-count {
-            text-align: center; font-size: 13px; color: #888;
-            margin-bottom: 10px;
-        }
-        .btn-open-buffer {
-            position: fixed; bottom: 25px; right: 95px;
-            background: #1565c0; color: white;
-            border: none; border-radius: 50px;
-            padding: 10px 16px; font-size: 13px; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 500; display: none;
-        }
+        /* Tabs scanner */
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tab-btn { flex: 1; padding: 10px; border: 2px solid var(--light-green); background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-dark); }
+        .tab-btn.active { background: var(--primary-green); color: white; border-color: var(--primary-green); }
+        .scan-hint { font-size: 13px; color: #888; text-align: center; margin-top: 8px; }
+        .scan-detected { background: var(--light-green); padding: 10px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
 
-        #installBtn {
-            display: none; background: var(--accent-green);
-            color: white; border: none; padding: 10px;
-            border-radius: 8px; margin-bottom: 15px;
-            width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem;
-        }
-        #iosBanner {
-            display: none; background: #e8f5e9;
-            border: 1px solid var(--accent-green); border-radius: 8px;
-            padding: 12px 15px; margin-bottom: 15px;
-            font-size: 0.9rem; color: var(--text-dark); text-align: center;
-        }
-        #iosBanner span { font-size: 1.2rem; }
+        /* Buffer */
+        #jsonOutput { background: #1e1e1e; color: #a8d8a8; font-family: monospace; font-size: 13px; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; min-height: 80px; max-height: 45vh; overflow-y: auto; margin-bottom: 12px; }
+        .buffer-count { text-align: center; font-size: 13px; color: #888; margin-bottom: 10px; }
+        .btn-open-buffer { position: fixed; bottom: 25px; right: 95px; background: #1565c0; color: white; border: none; border-radius: 50px; padding: 10px 16px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 500; display: none; }
 
-        /* Modal paramètres GitHub */
-        .modal-settings .modal-content { text-align: left; }
-        .modal-settings h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
-        .settings-info {
-            background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
-            padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.5;
-        }
-        .settings-info a { color: var(--primary-green); }
-
-
-        /* Modal confirmation push */
-        .modal-confirm .modal-content { text-align: left; max-height: 90vh; overflow-y: auto; }
-        .modal-confirm h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
-        .confirm-list {
-            background: var(--bg-light); border-radius: 8px; padding: 10px 14px;
-            max-height: 40vh; overflow-y: auto; margin: 12px 0;
-            font-size: 14px; line-height: 2;
-        }
+        /* Confirmation push */
+        .confirm-list { background: var(--bg-light); border-radius: 8px; padding: 10px 14px; max-height: 35vh; overflow-y: auto; margin: 12px 0; font-size: 14px; line-height: 2; }
         .confirm-item { border-bottom: 1px solid #eee; padding: 4px 0; }
         .confirm-item:last-child { border-bottom: none; }
-        .confirm-item .dup-tag {
-            background: #ffebee; color: #c62828; font-size: 11px;
-            padding: 2px 6px; border-radius: 10px; margin-left: 6px;
-        }
-        .confirm-actions { display: flex; gap: 10px; margin-top: 12px; }
-        .btn-confirm-ok {
-            flex: 1; padding: 13px; background: var(--primary-green);
-            color: white; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: bold; cursor: pointer;
-        }
-        .btn-confirm-cancel {
-            flex: 1; padding: 13px; background: #eee;
-            color: #333; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: bold; cursor: pointer;
-        }
-        .push-loading {
-            text-align: center; padding: 20px; font-size: 15px; color: var(--primary-green);
-        }
+        .dup-tag { background: #ffebee; color: #c62828; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
+        .warn-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px; font-size: 13px; color: #5d4037; margin-bottom: 8px; }
+        .push-loading { text-align: center; padding: 20px; font-size: 15px; color: var(--primary-green); }
+        .error-box { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; font-size: 14px; }
 
-        .toast {
-            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-            background: #333; color: white; padding: 10px 20px;
-            border-radius: 20px; font-size: 14px; z-index: 9999;
-            opacity: 0; transition: opacity 0.3s; pointer-events: none;
-        }
+        /* Paramètres */
+        .settings-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.6; }
+        .settings-info a { color: var(--primary-green); }
+
+        /* FAB */
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 58px; height: 58px; border-radius: 50%; background: var(--primary-green); color: white; font-size: 32px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 500; transition: background 0.2s; user-select: none; -webkit-user-select: none; }
+        .fab:hover { background: var(--accent-green); }
+        .fab.long-press { background: #546e7a; transform: scale(1.1); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
         .toast.show { opacity: 1; }
+
+        /* PWA */
+        #installBtn { display: none; background: var(--accent-green); color: white; border: none; padding: 10px; border-radius: 8px; margin-bottom: 15px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        #iosBanner { display: none; background: var(--light-green); border: 1px solid var(--accent-green); border-radius: 8px; padding: 12px 15px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; }
     </style>
 </head>
 <body>
@@ -269,14 +108,12 @@
 
 <div class="container">
     <button id="installBtn">📲 Installer l'application</button>
-    <div id="iosBanner">
-        Pour installer l'app sur iPhone : appuyez sur <span>⎙</span> puis <strong>« Sur l'écran d'accueil »</strong>
-    </div>
+    <div id="iosBanner">Pour installer sur iPhone : appuyez sur <strong>⎙</strong> puis <strong>« Sur l'écran d'accueil »</strong></div>
 
     <div class="search-controls">
         <div class="search-wrapper">
             <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-            <button class="clear-search" id="clearSearch" title="Effacer">✕</button>
+            <button class="clear-search" id="clearSearch">✕</button>
         </div>
         <select id="categoryFilter">
             <option value="">Toutes les catégories</option>
@@ -285,7 +122,6 @@
             <option value="Autres">Autres</option>
         </select>
     </div>
-
     <div id="productList" class="product-list"></div>
 </div>
 
@@ -299,535 +135,456 @@
     </div>
 </div>
 
-<!-- Modal scanner / ajout produit -->
-<div id="scanModal" class="modal modal-scan">
-    <div class="modal-content">
+<!-- Modal scanner -->
+<div id="scanModal" class="modal">
+    <div class="modal-content left">
         <span class="close-btn" onclick="closeScanModal()">&times;</span>
-        <h2>➕ Ajouter un produit</h2>
+        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">➕ Ajouter un produit</h2>
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('scan')">📷 Scanner</button>
-            <button class="tab-btn" onclick="switchTab('manual')">⌨️ Manuel</button>
+            <button class="tab-btn active" id="tabBtnScan" onclick="switchTab('scan')">📷 Scanner</button>
+            <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">⌨️ Manuel</button>
         </div>
-        <!-- Onglet scanner -->
-        <div id="tabScan">
-            <div id="scannerView"></div>
-            <p style="font-size:13px;color:#888;text-align:center;margin-top:8px">Pointez la caméra vers le code-barres</p>
-        </div>
-        <!-- Formulaire -->
+        <div id="tabScan"><div id="scannerView"></div><p class="scan-hint">Pointez la caméra vers le code-barres</p></div>
         <div id="tabManual" style="display:none"></div>
-        <div id="productForm" style="display:none; margin-top:12px;">
-            <div style="background:var(--light-green);padding:10px;border-radius:8px;margin-bottom:14px;font-size:13px;">
-                Code détecté — modifiez si besoin
-            </div>
-            <div class="form-group">
-                <label>Code produit</label>
-                <input type="text" id="inputCode" placeholder="Ex: 3283440020129">
-            </div>
-            <div class="form-group">
-                <label>Nom du produit</label>
-                <input type="text" id="inputNom" placeholder="Ex: Avocat Hass x2">
-            </div>
+        <div id="productForm" style="display:none;margin-top:12px">
+            <div class="scan-detected">Code détecté — modifiez si besoin</div>
+            <div class="form-group"><label>Code produit</label><input type="text" id="inputCode" placeholder="Ex: 3283440020129"></div>
+            <div class="form-group"><label>Nom du produit</label><input type="text" id="inputNom" placeholder="Ex: Avocat Hass x2"></div>
             <div class="form-group">
                 <label>Catégorie</label>
-                <select id="inputCat">
-                    <option value="Fruits">Fruits</option>
-                    <option value="Légumes">Légumes</option>
-                    <option value="Autres">Autres</option>
-                </select>
+                <select id="inputCat"><option value="Fruits">Fruits</option><option value="Légumes">Légumes</option><option value="Autres">Autres</option></select>
             </div>
-            <button class="btn-validate" onclick="addToBuffer()">✅ Ajouter au buffer</button>
+            <button class="btn-primary" onclick="addToBuffer()">✅ Ajouter au buffer</button>
         </div>
     </div>
 </div>
 
-<!-- Modal buffer JSON -->
-<div id="bufferModal" class="modal modal-buffer">
-    <div class="modal-content">
+<!-- Modal buffer -->
+<div id="bufferModal" class="modal">
+    <div class="modal-content left">
         <span class="close-btn" onclick="closeBufferModal()">&times;</span>
-        <h2>📋 Buffer produits.json</h2>
+        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">📋 Buffer produits.json</h2>
         <p class="buffer-count" id="bufferCount">0 produit(s) en attente</p>
         <div id="jsonOutput">Aucun produit scanné pour l'instant.</div>
-        <div class="buffer-actions">
+        <div class="btn-row">
             <button class="btn-copy" onclick="copyBuffer()">📋 Copier</button>
-            <button class="btn-clear" onclick="clearBuffer()">🗑️ Tout effacer</button>
+            <button class="btn-danger" onclick="clearBuffer()">🗑️ Effacer</button>
         </div>
-        <button class="btn-validate" style="margin-top:10px;" onclick="openConfirmModal()">🚀 Publier sur GitHub</button>
-    </div>
-</div>
-
-<!-- Modal paramètres GitHub -->
-<div id="settingsModal" class="modal modal-settings">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeSettings()">&times;</span>
-        <h2>⚙️ Paramètres GitHub</h2>
-        <div class="settings-info">
-            🔑 Votre token GitHub est stocké <strong>uniquement sur ce téléphone</strong>, jamais dans le code.<br><br>
-            Pour créer un token : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
-            Cochez <strong>repo</strong> → durée illimitée → Générer.
-        </div>
-        <div class="form-group">
-            <label>Token GitHub</label>
-            <input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
-        </div>
-        <div class="form-group">
-            <label>Propriétaire du repo</label>
-            <input type="text" id="inputOwner" placeholder="jimisow">
-        </div>
-        <div class="form-group">
-            <label>Nom du repo</label>
-            <input type="text" id="inputRepo" placeholder="rayon-fl">
-        </div>
-        <div class="form-group">
-            <label>Branche</label>
-            <input type="text" id="inputBranch" placeholder="main">
-        </div>
-        <button class="btn-validate" onclick="saveSettings()">💾 Enregistrer</button>
+        <button class="btn-primary" onclick="openConfirmModal()">🚀 Publier sur GitHub</button>
     </div>
 </div>
 
 <!-- Modal confirmation push -->
-<div id="confirmModal" class="modal modal-confirm">
-    <div class="modal-content">
+<div id="confirmModal" class="modal">
+    <div class="modal-content left">
         <span class="close-btn" onclick="closeConfirmModal()">&times;</span>
-        <h2>🚀 Publier sur GitHub</h2>
+        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">🚀 Publier sur GitHub</h2>
         <div id="confirmContent"></div>
     </div>
 </div>
 
-<!-- Bouton buffer (visible si au moins 1 produit) -->
-<button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Buffer</button>
+<!-- Modal paramètres -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content left">
+        <span class="close-btn" onclick="closeSettings()">&times;</span>
+        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">⚙️ Paramètres GitHub</h2>
+        <div class="settings-info">
+            🔑 Votre token est stocké <strong>uniquement sur ce téléphone</strong>.<br><br>
+            Créer un token : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
+            Cochez <strong>repo</strong> → No expiration → Générer.
+        </div>
+        <div class="form-group"><label>Token GitHub</label><input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
+        <div class="form-group"><label>Propriétaire du repo</label><input type="text" id="inputOwner" placeholder="jimisow"></div>
+        <div class="form-group"><label>Nom du repo</label><input type="text" id="inputRepo" placeholder="rayon-fl"></div>
+        <div class="form-group"><label>Branche</label><input type="text" id="inputBranch" placeholder="main"></div>
+        <button class="btn-primary" onclick="saveSettings()">💾 Enregistrer</button>
+    </div>
+</div>
 
-<!-- Bouton + flottant -->
-<button class="fab" id="fabBtn" title="Ajouter un produit">+</button>
+<!-- Bouton buffer flottant -->
+<button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Buffer (0)</button>
+
+<!-- FAB -->
+<button class="fab" id="fabBtn">+</button>
 
 <div class="toast" id="toast"></div>
 
 <script>
-    let allProducts = [];
-    let bufferProducts = JSON.parse(localStorage.getItem('bufferProducts') || '[]');
-    let scanner = null;
-    let scannerStarted = false;
+let allProducts = [];
+let bufferProducts = JSON.parse(localStorage.getItem('bufferProducts') || '[]');
+let scanner = null;
+let scannerStarted = false;
 
-    // ===== CHARGEMENT PRODUITS =====
-    async function loadProducts() {
-        try {
-            const res = await fetch('produits.json');
-            if (!res.ok) throw new Error(`Erreur ${res.status}`);
-            allProducts = await res.json();
-            displayProducts(allProducts);
-        } catch (e) {
-            let msg = window.location.protocol === 'file:'
-                ? "<strong>Attention :</strong> Utilisez un serveur local, pas file://."
-                : `Erreur de chargement.<br><small>${e.message}</small>`;
-            document.getElementById('productList').innerHTML =
-                `<div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px">${msg}</div>`;
-        }
+// ===== PRODUITS =====
+async function loadProducts() {
+    try {
+        const res = await fetch('produits.json');
+        if (!res.ok) throw new Error('Erreur ' + res.status);
+        allProducts = await res.json();
+        displayProducts(allProducts);
+    } catch(e) {
+        const msg = window.location.protocol === 'file:'
+            ? '<strong>Attention :</strong> Utilisez un serveur local, pas file://.'
+            : 'Erreur de chargement.<br><small>' + e.message + '</small>';
+        document.getElementById('productList').innerHTML =
+            '<div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px">' + msg + '</div>';
     }
+}
 
-    function displayProducts(products) {
-        const list = document.getElementById('productList');
-        list.innerHTML = '';
-        if (products.length === 0) {
-            list.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Aucun produit trouvé</div>';
-            return;
-        }
-        products.sort((a, b) => a.nom.localeCompare(b.nom)).forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-                <div class="product-info">
-                    <span class="nom">${p.nom}</span>
-                    <span class="cat-tag">${p.cat}</span>
-                </div>
-                <div style="color:#ccc;">➔</div>`;
-            card.onclick = () => openModal(p);
-            list.appendChild(card);
-        });
+function displayProducts(products) {
+    const list = document.getElementById('productList');
+    list.innerHTML = '';
+    if (!products.length) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Aucun produit trouvé</div>';
+        return;
     }
-
-    function filterProducts() {
-        const s = document.getElementById('searchInput').value.toLowerCase();
-        const c = document.getElementById('categoryFilter').value;
-        document.getElementById('clearSearch').style.display = s ? 'block' : 'none';
-        displayProducts(allProducts.filter(p =>
-            (p.nom.toLowerCase().includes(s) || p.code.includes(s)) && (c === "" || p.cat === c)
-        ));
-    }
-
-    // Croix effacer recherche
-    document.getElementById('clearSearch').addEventListener('click', () => {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('clearSearch').style.display = 'none';
-        filterProducts();
+    products.slice().sort((a,b) => a.nom.localeCompare(b.nom)).forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = '<div class="product-info"><span class="nom">' + p.nom + '</span><span class="cat-tag">' + p.cat + '</span></div><div style="color:#ccc">➔</div>';
+        card.onclick = () => openModal(p);
+        list.appendChild(card);
     });
-    document.getElementById('searchInput').addEventListener('input', filterProducts);
-    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+}
 
-    // ===== MODAL CODE-BARRES =====
-    function openModal(product) {
-        document.getElementById('modalProductName').textContent = product.nom;
-        document.getElementById('modalCodeDisplay').textContent = product.code;
-        JsBarcode("#barcode", product.code, { format: "CODE128", lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true });
-        document.getElementById('barcodeModal').style.display = "flex";
-    }
-    function closeModal() { document.getElementById('barcodeModal').style.display = "none"; }
+function filterProducts() {
+    const s = document.getElementById('searchInput').value.toLowerCase();
+    const c = document.getElementById('categoryFilter').value;
+    document.getElementById('clearSearch').style.display = s ? 'block' : 'none';
+    displayProducts(allProducts.filter(p =>
+        (p.nom.toLowerCase().includes(s) || p.code.includes(s)) && (c === '' || p.cat === c)
+    ));
+}
 
-    // ===== MODAL SCANNER =====
-    function openScanModal() {
-        document.getElementById('scanModal').style.display = 'flex';
-        document.getElementById('productForm').style.display = 'none';
-        switchTab('scan');
+document.getElementById('clearSearch').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearch').style.display = 'none';
+    filterProducts();
+});
+document.getElementById('searchInput').addEventListener('input', filterProducts);
+document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+
+// ===== MODAL BARCODE =====
+function openModal(product) {
+    document.getElementById('modalProductName').textContent = product.nom;
+    document.getElementById('modalCodeDisplay').textContent = product.code;
+    JsBarcode('#barcode', product.code, { format: 'CODE128', lineColor: '#000', width: 2.5, height: 120, displayValue: false, flat: true });
+    document.getElementById('barcodeModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('barcodeModal').style.display = 'none'; }
+
+// ===== SCANNER =====
+function openScanModal() {
+    document.getElementById('scanModal').style.display = 'flex';
+    document.getElementById('productForm').style.display = 'none';
+    document.getElementById('inputCode').value = '';
+    document.getElementById('inputNom').value = '';
+    switchTab('scan');
+}
+function closeScanModal() {
+    stopScanner();
+    document.getElementById('scanModal').style.display = 'none';
+}
+
+function switchTab(tab) {
+    document.getElementById('tabBtnScan').classList.toggle('active', tab === 'scan');
+    document.getElementById('tabBtnManual').classList.toggle('active', tab === 'manual');
+    document.getElementById('tabScan').style.display = tab === 'scan' ? 'block' : 'none';
+    document.getElementById('tabManual').style.display = tab === 'manual' ? 'block' : 'none';
+    if (tab === 'scan') {
         startScanner();
-    }
-
-    function closeScanModal() {
+    } else {
         stopScanner();
-        document.getElementById('scanModal').style.display = 'none';
-        document.getElementById('productForm').style.display = 'none';
-        document.getElementById('inputCode').value = '';
-        document.getElementById('inputNom').value = '';
+        document.getElementById('productForm').style.display = 'block';
     }
+}
 
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-btn').forEach((b, i) => {
-            b.classList.toggle('active', (tab === 'scan' && i === 0) || (tab === 'manual' && i === 1));
-        });
-        document.getElementById('tabScan').style.display = tab === 'scan' ? 'block' : 'none';
-        document.getElementById('tabManual').style.display = tab === 'manual' ? 'block' : 'none';
-        if (tab === 'scan') {
-            startScanner();
-        } else {
+function startScanner() {
+    if (scannerStarted) return;
+    if (!scanner) scanner = new Html5Qrcode('scannerView');
+    scanner.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: { width: 250, height: 120 } },
+        (code) => {
             stopScanner();
+            document.getElementById('inputCode').value = code;
             document.getElementById('productForm').style.display = 'block';
-        }
-    }
-
-    function startScanner() {
-        if (scannerStarted) return;
-        if (!scanner) {
-            scanner = new Html5Qrcode("scannerView");
-        }
-        scanner.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 120 } },
-            (decodedText) => {
-                stopScanner();
-                document.getElementById('inputCode').value = decodedText;
-                document.getElementById('inputNom').value = '';
-                document.getElementById('productForm').style.display = 'block';
-                switchTab('manual');
-                document.getElementById('inputNom').focus();
-            },
-            () => {}
-        ).then(() => { scannerStarted = true; })
-         .catch(err => {
-            console.warn('Scanner:', err);
             switchTab('manual');
-         });
-    }
+            document.getElementById('inputNom').focus();
+        },
+        () => {}
+    ).then(() => { scannerStarted = true; })
+     .catch(() => { switchTab('manual'); });
+}
 
-    function stopScanner() {
-        if (scanner && scannerStarted) {
-            scanner.stop().then(() => { scannerStarted = false; }).catch(() => { scannerStarted = false; });
-        }
+function stopScanner() {
+    if (scanner && scannerStarted) {
+        scanner.stop().catch(() => {}).finally(() => { scannerStarted = false; });
     }
+}
 
-    // ===== BUFFER =====
-    function addToBuffer() {
-        const code = document.getElementById('inputCode').value.trim();
-        const nom  = document.getElementById('inputNom').value.trim();
-        const cat  = document.getElementById('inputCat').value;
-        if (!code || !nom) { showToast("⚠️ Code et nom obligatoires"); return; }
-        bufferProducts.push({ nom, code, cat });
-        localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
-        updateBufferBtn();
-        closeScanModal();
-        showToast(`✅ "${nom}" ajouté au buffer`);
+// ===== BUFFER =====
+function addToBuffer() {
+    const code = document.getElementById('inputCode').value.trim();
+    const nom  = document.getElementById('inputNom').value.trim();
+    const cat  = document.getElementById('inputCat').value;
+    if (!code || !nom) { showToast('⚠️ Code et nom obligatoires'); return; }
+    bufferProducts.push({ nom, code, cat });
+    localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
+    updateBufferBtn();
+    closeScanModal();
+    showToast('✅ "' + nom + '" ajouté au buffer');
+}
+
+function updateBufferBtn() {
+    const btn = document.getElementById('openBufferBtn');
+    btn.style.display = bufferProducts.length > 0 ? 'block' : 'none';
+    btn.textContent = '📋 Buffer (' + bufferProducts.length + ')';
+}
+
+function openBufferModal() { renderBuffer(); document.getElementById('bufferModal').style.display = 'flex'; }
+function closeBufferModal() { document.getElementById('bufferModal').style.display = 'none'; }
+
+function renderBuffer() {
+    document.getElementById('bufferCount').textContent = bufferProducts.length + ' produit(s) en attente';
+    if (!bufferProducts.length) {
+        document.getElementById('jsonOutput').textContent = 'Aucun produit scanné pour l\'instant.';
+        return;
     }
+    document.getElementById('jsonOutput').textContent = bufferProducts
+        .map((p, i) => '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < bufferProducts.length - 1 ? ',' : ''))
+        .join('\n');
+}
 
-    function updateBufferBtn() {
-        const btn = document.getElementById('openBufferBtn');
-        btn.style.display = bufferProducts.length > 0 ? 'block' : 'none';
-        btn.textContent = `📋 Buffer (${bufferProducts.length})`;
+function copyBuffer() {
+    if (!bufferProducts.length) { showToast('Buffer vide !'); return; }
+    const text = bufferProducts
+        .map((p, i) => '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < bufferProducts.length - 1 ? ',' : ''))
+        .join('\n');
+    navigator.clipboard.writeText(text)
+        .then(() => showToast('✅ Copié !'))
+        .catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            showToast('✅ Copié !');
+        });
+}
+
+function clearBuffer() {
+    if (!confirm('Effacer tous les produits du buffer ?')) return;
+    bufferProducts = [];
+    localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
+    updateBufferBtn(); renderBuffer();
+    showToast('🗑️ Buffer effacé');
+}
+
+// ===== PARAMÈTRES =====
+function openSettings() {
+    document.getElementById('inputToken').value  = localStorage.getItem('gh_token')  || '';
+    document.getElementById('inputOwner').value  = localStorage.getItem('gh_owner')  || '';
+    document.getElementById('inputRepo').value   = localStorage.getItem('gh_repo')   || '';
+    document.getElementById('inputBranch').value = localStorage.getItem('gh_branch') || 'main';
+    document.getElementById('settingsModal').style.display = 'flex';
+}
+function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+function saveSettings() {
+    localStorage.setItem('gh_token',  document.getElementById('inputToken').value.trim());
+    localStorage.setItem('gh_owner',  document.getElementById('inputOwner').value.trim());
+    localStorage.setItem('gh_repo',   document.getElementById('inputRepo').value.trim());
+    localStorage.setItem('gh_branch', document.getElementById('inputBranch').value.trim() || 'main');
+    closeSettings();
+    showToast('✅ Paramètres enregistrés');
+}
+
+// ===== GITHUB API =====
+async function ghGet(path) {
+    const token  = localStorage.getItem('gh_token');
+    const owner  = localStorage.getItem('gh_owner');
+    const repo   = localStorage.getItem('gh_repo');
+    const branch = localStorage.getItem('gh_branch') || 'main';
+    const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path + '?ref=' + branch, {
+        headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) throw new Error('GitHub ' + res.status + ' ' + res.statusText);
+    return res.json();
+}
+
+async function ghPut(path, message, contentB64, sha) {
+    const token  = localStorage.getItem('gh_token');
+    const owner  = localStorage.getItem('gh_owner');
+    const repo   = localStorage.getItem('gh_repo');
+    const branch = localStorage.getItem('gh_branch') || 'main';
+    const body = { message, content: contentB64, branch };
+    if (sha) body.sha = sha;
+    const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path, {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    if (!res.ok) { const err = await res.json(); throw new Error(err.message || res.statusText); }
+    return res.json();
+}
+
+function toB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
+function getNextSwVersion(swContent) {
+    const match = swContent.match(/rayon-frais-v(\d+)/);
+    return match ? 'rayon-frais-v' + (parseInt(match[1]) + 1) : 'rayon-frais-v2';
+}
+
+// ===== CONFIRMATION PUSH =====
+function openConfirmModal() {
+    if (!localStorage.getItem('gh_token')) {
+        showToast('⚙️ Configurez d\'abord vos paramètres GitHub');
+        openSettings(); return;
     }
+    if (!bufferProducts.length) { showToast('Buffer vide !'); return; }
 
-    function openBufferModal() {
-        document.getElementById('bufferModal').style.display = 'flex';
-        renderBuffer();
-    }
-    function closeBufferModal() { document.getElementById('bufferModal').style.display = 'none'; }
+    const existingCodes = allProducts.map(p => p.code);
+    const items = bufferProducts.map(p => {
+        const dup = existingCodes.includes(p.code);
+        return '<div class="confirm-item"><strong>' + p.nom + '</strong> <span style="color:#888">(' + p.cat + ')</span><br>'
+             + '<span style="font-family:monospace;font-size:13px">' + p.code + '</span>'
+             + (dup ? '<span class="dup-tag">⚠️ doublon</span>' : '') + '</div>';
+    }).join('');
 
-    function renderBuffer() {
-        document.getElementById('bufferCount').textContent = `${bufferProducts.length} produit(s) en attente`;
-        if (bufferProducts.length === 0) {
-            document.getElementById('jsonOutput').textContent = 'Aucun produit scanné pour l\'instant.';
-            return;
-        }
-        document.getElementById('jsonOutput').textContent = bufferProducts
-            .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
-            .join('\n');
-    }
+    const dupCount = bufferProducts.filter(p => existingCodes.includes(p.code)).length;
+    const dupWarn  = dupCount ? '<div class="warn-box">⚠️ ' + dupCount + ' doublon(s) ignoré(s).</div>' : '';
 
-    function copyBuffer() {
-        if (bufferProducts.length === 0) { showToast("Buffer vide !"); return; }
-        const text = bufferProducts
-            .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
-            .join('\n');
-        navigator.clipboard.writeText(text)
-            .then(() => showToast("✅ Copié dans le presse-papiers !"))
-            .catch(() => {
-                // Fallback
-                const ta = document.createElement('textarea');
-                const text2 = bufferProducts
-                    .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
-                    .join('\n');
-                ta.value = text2;
-                document.body.appendChild(ta);
-                ta.select(); document.execCommand('copy');
-                document.body.removeChild(ta);
-                showToast("✅ Copié !");
-            });
-    }
+    document.getElementById('confirmContent').innerHTML =
+        '<p style="margin:0 0 8px;font-size:14px">Vous êtes sur le point d\'ajouter <strong>' + bufferProducts.length + ' produit(s)</strong> :</p>'
+        + '<div class="confirm-list">' + items + '</div>'
+        + dupWarn
+        + '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Annuler</button>'
+        + '<button class="btn-primary" style="flex:1;margin-top:0" onclick="pushToGitHub()">✅ Confirmer</button></div>';
 
-    function clearBuffer() {
-        if (!confirm("Effacer tous les produits du buffer ?")) return;
+    closeBufferModal();
+    document.getElementById('confirmModal').style.display = 'flex';
+}
+function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
+
+async function pushToGitHub() {
+    document.getElementById('confirmContent').innerHTML = '<div class="push-loading">⏳ Publication en cours...</div>';
+    try {
+        const prodFile = await ghGet('produits.json');
+        const existing = JSON.parse(atob(prodFile.content.replace(/\n/g, '')));
+        const existingCodes = existing.map(p => p.code);
+        const newProds = bufferProducts.filter(p => !existingCodes.includes(p.code));
+        const merged = existing.concat(newProds);
+
+        const swFile = await ghGet('sw.js');
+        const swContent = atob(swFile.content.replace(/\n/g, ''));
+        const newVersion = getNextSwVersion(swContent);
+        const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
+
+        await ghPut('produits.json', 'Ajout de ' + newProds.length + ' produit(s)', toB64(JSON.stringify(merged, null, 2)), prodFile.sha);
+        await ghPut('sw.js', 'Bump cache ' + newVersion, toB64(newSwContent), swFile.sha);
+
+        allProducts = merged;
+        displayProducts(allProducts);
         bufferProducts = [];
         localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
         updateBufferBtn();
-        renderBuffer();
-        showToast("🗑️ Buffer effacé");
+        closeConfirmModal();
+        showToast('✅ ' + newProds.length + ' produit(s) publié(s) !');
+    } catch(e) {
+        document.getElementById('confirmContent').innerHTML =
+            '<div class="error-box">❌ Erreur : ' + e.message + '</div>'
+            + '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Fermer</button></div>';
     }
+}
 
-    // ===== FAB : clic court = scanner, appui long = paramètres =====
-    (function() {
-        const fab = document.getElementById('fabBtn');
-        let pressTimer = null;
+// ===== FAB : clic court = scanner / appui long = paramètres =====
+(function() {
+    const fab = document.getElementById('fabBtn');
+    let pressTimer = null;
 
-        fab.addEventListener('mousedown', () => {
-            pressTimer = setTimeout(() => { pressTimer = null; openSettings(); }, 800);
-        });
-        fab.addEventListener('mouseup', () => {
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; openScanModal(); }
-        });
-        fab.addEventListener('mouseleave', () => {
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-        });
-        fab.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            pressTimer = setTimeout(() => { pressTimer = null; openSettings(); }, 800);
-        }, { passive: false });
-        fab.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; openScanModal(); }
-        });
-        fab.addEventListener('touchmove', () => {
-            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-        });
-    })();
-
-    // ===== PARAMÈTRES =====
-    function openSettings() {
-        document.getElementById('inputToken').value  = localStorage.getItem('gh_token')  || '';
-        document.getElementById('inputOwner').value  = localStorage.getItem('gh_owner')  || '';
-        document.getElementById('inputRepo').value   = localStorage.getItem('gh_repo')   || '';
-        document.getElementById('inputBranch').value = localStorage.getItem('gh_branch') || 'main';
-        document.getElementById('settingsModal').style.display = 'flex';
+    function startPress() {
+        pressTimer = setTimeout(function() {
+            pressTimer = null;
+            fab.classList.add('long-press');
+            setTimeout(function() { fab.classList.remove('long-press'); }, 400);
+            openSettings();
+        }, 800);
     }
-    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
-    function saveSettings() {
-        localStorage.setItem('gh_token',  document.getElementById('inputToken').value.trim());
-        localStorage.setItem('gh_owner',  document.getElementById('inputOwner').value.trim());
-        localStorage.setItem('gh_repo',   document.getElementById('inputRepo').value.trim());
-        localStorage.setItem('gh_branch', document.getElementById('inputBranch').value.trim() || 'main');
-        closeSettings();
-        showToast('✅ Paramètres enregistrés');
-    }
-
-    // ===== GITHUB API =====
-    async function ghGet(path) {
-        const token  = localStorage.getItem('gh_token');
-        const owner  = localStorage.getItem('gh_owner');
-        const repo   = localStorage.getItem('gh_repo');
-        const branch = localStorage.getItem('gh_branch') || 'main';
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
-            headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
-        });
-        if (!res.ok) throw new Error(`GitHub: ${res.status} ${res.statusText}`);
-        return res.json();
-    }
-
-    async function ghPut(path, message, contentB64, sha) {
-        const token  = localStorage.getItem('gh_token');
-        const owner  = localStorage.getItem('gh_owner');
-        const repo   = localStorage.getItem('gh_repo');
-        const branch = localStorage.getItem('gh_branch') || 'main';
-        const body = { message, content: contentB64, branch };
-        if (sha) body.sha = sha;
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-            method: 'PUT',
-            headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.message || res.statusText);
-        }
-        return res.json();
-    }
-
-    function toB64(str) { return btoa(unescape(encodeURIComponent(str))); }
-
-    function getNextSwVersion(swContent) {
-        const match = swContent.match(/rayon-frais-v(\d+)/);
-        if (!match) return 'rayon-frais-v2';
-        return `rayon-frais-v${parseInt(match[1]) + 1}`;
-    }
-
-    // ===== CONFIRMATION PUSH =====
-    function openConfirmModal() {
-        if (!localStorage.getItem('gh_token')) {
-            showToast('⚙️ Configurez d'abord vos paramètres GitHub');
-            openSettings(); return;
-        }
-        if (bufferProducts.length === 0) { showToast('Buffer vide !'); return; }
-
-        const existing = allProducts.map(p => p.code);
-        const items = bufferProducts.map(p => {
-            const isDup = existing.includes(p.code);
-            return `<div class="confirm-item">
-                <strong>${p.nom}</strong> <span style="color:#888">(${p.cat})</span><br>
-                <span style="font-family:monospace;font-size:13px">${p.code}</span>
-                ${isDup ? '<span class="dup-tag">⚠️ doublon</span>' : ''}
-            </div>`;
-        }).join('');
-
-        const dupCount = bufferProducts.filter(p => existing.includes(p.code)).length;
-        const dupWarn  = dupCount > 0 ? `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px;font-size:13px;color:#5d4037;margin-bottom:8px">⚠️ ${dupCount} produit(s) déjà existant(s) seront ignorés.</div>` : '';
-
-        document.getElementById('confirmContent').innerHTML = `
-            <p style="margin:0 0 8px;font-size:14px">Vous êtes sur le point d'ajouter <strong>${bufferProducts.length} produit(s)</strong> :</p>
-            <div class="confirm-list">${items}</div>
-            ${dupWarn}
-            <div class="confirm-actions">
-                <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Annuler</button>
-                <button class="btn-confirm-ok" onclick="pushToGitHub()">✅ Confirmer</button>
-            </div>`;
-        document.getElementById('confirmModal').style.display = 'flex';
-        closeBufferModal();
-    }
-    function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
-
-    async function pushToGitHub() {
-        document.getElementById('confirmContent').innerHTML = '<div class="push-loading">⏳ Publication en cours...</div>';
-        try {
-            // 1. Lire produits.json actuel
-            const prodFile = await ghGet('produits.json');
-            const existing = JSON.parse(atob(prodFile.content.replace(/\n/g, '')));
-
-            // 2. Fusionner en ignorant les doublons
-            const existingCodes = existing.map(p => p.code);
-            const newProds = bufferProducts.filter(p => !existingCodes.includes(p.code));
-            const merged   = [...existing, ...newProds];
-
-            // 3. Lire sw.js actuel
-            const swFile    = await ghGet('sw.js');
-            const swContent = atob(swFile.content.replace(/\n/g, ''));
-            const newVersion = getNextSwVersion(swContent);
-            const newSwContent = swContent.replace(/rayon-frais-v\d+/g, newVersion);
-
-            // 4. Pousser produits.json
-            const prodJson = JSON.stringify(merged, null, 2);
-            await ghPut('produits.json', `Ajout de ${newProds.length} produit(s)`, toB64(prodJson), prodFile.sha);
-
-            // 5. Pousser sw.js
-            await ghPut('sw.js', `Bump cache ${newVersion}`, toB64(newSwContent), swFile.sha);
-
-            // 6. Succès
-            allProducts = merged;
-            displayProducts(allProducts);
-            bufferProducts = [];
-            localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
-            updateBufferBtn();
-            closeConfirmModal();
-            showToast(`✅ ${newProds.length} produit(s) publié(s) !`);
-        } catch(e) {
-            document.getElementById('confirmContent').innerHTML = `
-                <div style="color:#d32f2f;background:#ffebee;padding:15px;border-radius:8px;font-size:14px">
-                    ❌ Erreur : ${e.message}
-                </div>
-                <div class="confirm-actions">
-                    <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Fermer</button>
-                </div>`;
+    function endPress(doOpen) {
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+            pressTimer = null;
+            if (doOpen) openScanModal();
         }
     }
 
-    // ===== TOAST =====
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2500);
+    fab.addEventListener('mousedown', startPress);
+    fab.addEventListener('mouseup', function() { endPress(true); });
+    fab.addEventListener('mouseleave', function() { endPress(false); });
+    fab.addEventListener('touchstart', function(e) { e.preventDefault(); startPress(); }, { passive: false });
+    fab.addEventListener('touchend', function(e) { e.preventDefault(); endPress(true); });
+    fab.addEventListener('touchmove', function() { endPress(false); });
+})();
+
+// ===== FERMER MODALS =====
+window.onclick = function(e) {
+    if (e.target === document.getElementById('barcodeModal')) closeModal();
+    if (e.target === document.getElementById('bufferModal'))  closeBufferModal();
+    if (e.target === document.getElementById('scanModal'))    closeScanModal();
+    if (e.target === document.getElementById('confirmModal')) closeConfirmModal();
+    if (e.target === document.getElementById('settingsModal')) closeSettings();
+};
+
+// ===== TOAST =====
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+// ===== INIT =====
+loadProducts();
+updateBufferBtn();
+
+// PWA Install
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
+});
+installBtn.addEventListener('click', async function() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') installBtn.style.display = 'none';
+        deferredPrompt = null;
     }
+});
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+if (isIos && isSafari && !window.navigator.standalone) {
+    document.getElementById('iosBanner').style.display = 'block';
+}
 
-    // Fermer modals en cliquant à côté
-    window.onclick = e => {
-        if (e.target == document.getElementById('barcodeModal')) closeModal();
-        if (e.target == document.getElementById('bufferModal')) closeBufferModal();
-        if (e.target == document.getElementById('scanModal')) closeScanModal();
-        if (e.target == document.getElementById('settingsModal')) closeSettings();
-        if (e.target == document.getElementById('confirmModal')) closeConfirmModal();
-    };
-
-    // ===== INIT =====
-    loadProducts();
-    updateBufferBtn();
-
-    // PWA install
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
-    });
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') installBtn.style.display = 'none';
-            deferredPrompt = null;
-        }
-    });
-    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    if (isIos && isSafari && !window.navigator.standalone) {
-        document.getElementById('iosBanner').style.display = 'block';
-    }
-    // Service Worker : détection automatique des mises à jour
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-            const reg = await navigator.serviceWorker.register('./sw.js');
-
-            // Vérifie une mise à jour au lancement
-            reg.update();
-
-            // Si un nouveau SW est en attente, recharge automatiquement
-            reg.addEventListener('updatefound', () => {
-                const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Nouveau contenu disponible → recharge silencieuse
-                        navigator.serviceWorker.controller.postMessage('skipWaiting');
-                        window.location.reload();
-                    }
-                });
-            });
-
-            // Recharge si le SW prend le contrôle (après activation)
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) { refreshing = true; window.location.reload(); }
+// Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async function() {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        reg.update();
+        reg.addEventListener('updatefound', function() {
+            const nw = reg.installing;
+            nw.addEventListener('statechange', function() {
+                if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage('skipWaiting');
+                    window.location.reload();
+                }
             });
         });
-    }
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+            if (!refreshing) { refreshing = true; window.location.reload(); }
+        });
+    });
+}
 </script>
 </body>
 </html>
