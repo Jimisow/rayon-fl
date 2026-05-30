@@ -485,17 +485,25 @@
             document.getElementById('jsonOutput').textContent = 'Aucun produit scanné pour l\'instant.';
             return;
         }
-        document.getElementById('jsonOutput').textContent = JSON.stringify(bufferProducts, null, 2);
+        document.getElementById('jsonOutput').textContent = bufferProducts
+            .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
+            .join('\n');
     }
 
     function copyBuffer() {
         if (bufferProducts.length === 0) { showToast("Buffer vide !"); return; }
-        navigator.clipboard.writeText(JSON.stringify(bufferProducts, null, 2))
+        const text = bufferProducts
+            .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
+            .join('\n');
+        navigator.clipboard.writeText(text)
             .then(() => showToast("✅ Copié dans le presse-papiers !"))
             .catch(() => {
                 // Fallback
                 const ta = document.createElement('textarea');
-                ta.value = JSON.stringify(bufferProducts, null, 2);
+                const text2 = bufferProducts
+                    .map((p, i) => `  { "nom": "${p.nom}", "code": "${p.code}", "cat": "${p.cat}" }${i < bufferProducts.length - 1 ? ',' : ''}`)
+                    .join('\n');
+                ta.value = text2;
                 document.body.appendChild(ta);
                 ta.select(); document.execCommand('copy');
                 document.body.removeChild(ta);
