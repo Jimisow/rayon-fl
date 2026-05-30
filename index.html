@@ -6,14 +6,13 @@
     <title>Gestion Rayon Frais</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
-
-    <!-- ✅ Apple PWA meta tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Rayon Frais">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
-
+    <link rel="apple-touch-icon" href="icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- Scanner de code-barres -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
             --primary-green: #2e7d32;
@@ -22,15 +21,14 @@
             --text-dark: #1b5e20;
             --bg-light: #f9fbf9;
         }
-
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
             margin: 0;
-            padding-bottom: 20px;
+            padding-bottom: 80px;
         }
-
         header {
             background-color: var(--primary-green);
             color: white;
@@ -41,155 +39,206 @@
             top: 0;
             z-index: 100;
         }
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
 
-        .container {
-            padding: 15px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .search-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input, select {
-            padding: 12px;
+        /* Barre de recherche avec croix */
+        .search-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .search-wrapper { position: relative; }
+        .search-wrapper input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
             border: 2px solid var(--light-green);
             border-radius: 8px;
             font-size: 16px;
             outline: none;
         }
-
-        input:focus, select:focus {
-            border-color: var(--accent-green);
-        }
-
-        .product-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .product-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-
-        .product-card:active {
-            transform: scale(0.98);
-            background-color: var(--light-green);
-        }
-
-        .product-info .nom {
-            font-weight: bold;
-            font-size: 1.1rem;
-            display: block;
-        }
-
-        .product-info .cat-tag {
-            font-size: 0.8rem;
-            color: var(--primary-green);
-            background: var(--light-green);
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-top: 4px;
-            display: inline-block;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            position: relative;
-        }
-
-        .close-btn {
+        .search-wrapper input:focus { border-color: var(--accent-green); }
+        .clear-search {
             position: absolute;
-            top: 10px; right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
+            right: 10px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            font-size: 18px; color: #aaa;
+            cursor: pointer; display: none;
+            line-height: 1; padding: 4px;
+        }
+        .clear-search:hover { color: #555; }
+
+        select {
+            padding: 12px;
+            border: 2px solid var(--light-green);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+        }
+        select:focus { border-color: var(--accent-green); }
+
+        /* Liste produits */
+        .product-list { display: flex; flex-direction: column; gap: 10px; }
+        .product-card {
+            background: white; padding: 15px; border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: transform 0.1s;
+        }
+        .product-card:active { transform: scale(0.98); background-color: var(--light-green); }
+        .product-info .nom { font-weight: bold; font-size: 1.1rem; display: block; }
+        .product-info .cat-tag {
+            font-size: 0.8rem; color: var(--primary-green);
+            background: var(--light-green); padding: 2px 8px;
+            border-radius: 10px; margin-top: 4px; display: inline-block;
         }
 
+        /* Modal code-barres */
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 90%; max-width: 400px;
+            padding: 20px; border-radius: 15px;
+            text-align: center; position: relative;
+        }
+        .close-btn {
+            position: absolute; top: 10px; right: 15px;
+            font-size: 24px; cursor: pointer; color: #666;
+        }
         .big-code {
-            font-size: 2.5rem;
-            font-weight: bold;
-            letter-spacing: 5px;
-            margin: 20px 0;
-            color: #000;
+            font-size: 2.5rem; font-weight: bold;
+            letter-spacing: 5px; margin: 20px 0; color: #000;
         }
-
         #barcode { max-width: 100%; }
 
-        #installBtn {
-            display: none;
-            background: var(--accent-green);
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            width: 100%;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1rem;
+        /* Bouton + flottant */
+        .fab {
+            position: fixed; bottom: 25px; right: 25px;
+            width: 58px; height: 58px; border-radius: 50%;
+            background: var(--primary-green); color: white;
+            font-size: 32px; border: none; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500; transition: background 0.2s;
+        }
+        .fab:hover { background: var(--accent-green); }
+
+        /* Modal scanner / ajout produit */
+        .modal-scan .modal-content {
+            max-height: 90vh; overflow-y: auto;
+            text-align: left;
+        }
+        .modal-scan h2 { text-align: center; margin-top: 0; color: var(--primary-green); }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tab-btn {
+            flex: 1; padding: 10px; border: 2px solid var(--light-green);
+            background: white; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 600; color: var(--text-dark);
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary-green); color: white;
+            border-color: var(--primary-green);
         }
 
-        /* ✅ Bandeau iOS : affiché uniquement sur Safari iOS si pas installé */
+        #scannerView { width: 100%; border-radius: 8px; overflow: hidden; }
+        #html5-qrcode-button-camera-start,
+        #html5-qrcode-button-camera-stop { display: none; }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 12px;
+            border: 2px solid var(--light-green);
+            border-radius: 8px; font-size: 15px;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
+
+        .btn-validate {
+            width: 100%; padding: 13px; background: var(--primary-green);
+            color: white; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 6px;
+        }
+        .btn-validate:hover { background: var(--accent-green); }
+
+        /* Page buffer JSON */
+        .modal-buffer .modal-content {
+            max-height: 90vh; overflow-y: auto; text-align: left;
+        }
+        .modal-buffer h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
+        #jsonOutput {
+            background: #1e1e1e; color: #a8d8a8;
+            font-family: monospace; font-size: 13px;
+            padding: 15px; border-radius: 8px;
+            white-space: pre-wrap; word-break: break-all;
+            min-height: 80px; max-height: 50vh; overflow-y: auto;
+            margin-bottom: 12px;
+        }
+        .buffer-actions { display: flex; gap: 10px; }
+        .btn-copy {
+            flex: 1; padding: 11px; background: var(--primary-green);
+            color: white; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn-clear {
+            flex: 1; padding: 11px; background: #d32f2f;
+            color: white; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .buffer-count {
+            text-align: center; font-size: 13px; color: #888;
+            margin-bottom: 10px;
+        }
+        .btn-open-buffer {
+            position: fixed; bottom: 25px; right: 95px;
+            background: #1565c0; color: white;
+            border: none; border-radius: 50px;
+            padding: 10px 16px; font-size: 13px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 500; display: none;
+        }
+
+        #installBtn {
+            display: none; background: var(--accent-green);
+            color: white; border: none; padding: 10px;
+            border-radius: 8px; margin-bottom: 15px;
+            width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem;
+        }
         #iosBanner {
-            display: none;
-            background: #e8f5e9;
-            border: 1px solid var(--accent-green);
-            border-radius: 8px;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: var(--text-dark);
-            text-align: center;
+            display: none; background: #e8f5e9;
+            border: 1px solid var(--accent-green); border-radius: 8px;
+            padding: 12px 15px; margin-bottom: 15px;
+            font-size: 0.9rem; color: var(--text-dark); text-align: center;
         }
         #iosBanner span { font-size: 1.2rem; }
+
+        .toast {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 10px 20px;
+            border-radius: 20px; font-size: 14px; z-index: 9999;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Rayon Fruits & Légumes</h1>
-</header>
+<header><h1>🥦 Rayon Fruits & Légumes</h1></header>
 
 <div class="container">
-    <!-- Bouton install Android/Chrome -->
-    <button id="installBtn">📲 Installer l'application sur l'écran d'accueil</button>
-
-    <!-- ✅ Bandeau install iOS/Safari -->
+    <button id="installBtn">📲 Installer l'application</button>
     <div id="iosBanner">
         Pour installer l'app sur iPhone : appuyez sur <span>⎙</span> puis <strong>« Sur l'écran d'accueil »</strong>
     </div>
 
     <div class="search-controls">
-        <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+            <button class="clear-search" id="clearSearch" title="Effacer">✕</button>
+        </div>
         <select id="categoryFilter">
             <option value="">Toutes les catégories</option>
             <option value="Fruits">Fruits</option>
@@ -201,7 +250,7 @@
     <div id="productList" class="product-list"></div>
 </div>
 
-<!-- Modal -->
+<!-- Modal code-barres -->
 <div id="barcodeModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -211,30 +260,98 @@
     </div>
 </div>
 
+<!-- Modal scanner / ajout produit -->
+<div id="scanModal" class="modal modal-scan">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeScanModal()">&times;</span>
+        <h2>➕ Ajouter un produit</h2>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('scan')">📷 Scanner</button>
+            <button class="tab-btn" onclick="switchTab('manual')">⌨️ Manuel</button>
+        </div>
+        <!-- Onglet scanner -->
+        <div id="tabScan">
+            <div id="scannerView"></div>
+            <p style="font-size:13px;color:#888;text-align:center;margin-top:8px">Pointez la caméra vers le code-barres</p>
+        </div>
+        <!-- Formulaire -->
+        <div id="tabManual" style="display:none"></div>
+        <div id="productForm" style="display:none; margin-top:12px;">
+            <div style="background:var(--light-green);padding:10px;border-radius:8px;margin-bottom:14px;font-size:13px;">
+                Code détecté — modifiez si besoin
+            </div>
+            <div class="form-group">
+                <label>Code produit</label>
+                <input type="text" id="inputCode" placeholder="Ex: 3283440020129">
+            </div>
+            <div class="form-group">
+                <label>Nom du produit</label>
+                <input type="text" id="inputNom" placeholder="Ex: Avocat Hass x2">
+            </div>
+            <div class="form-group">
+                <label>Catégorie</label>
+                <select id="inputCat">
+                    <option value="Fruits">Fruits</option>
+                    <option value="Légumes">Légumes</option>
+                    <option value="Autres">Autres</option>
+                </select>
+            </div>
+            <button class="btn-validate" onclick="addToBuffer()">✅ Ajouter au buffer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal buffer JSON -->
+<div id="bufferModal" class="modal modal-buffer">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeBufferModal()">&times;</span>
+        <h2>📋 Buffer produits.json</h2>
+        <p class="buffer-count" id="bufferCount">0 produit(s) en attente</p>
+        <div id="jsonOutput">Aucun produit scanné pour l'instant.</div>
+        <div class="buffer-actions">
+            <button class="btn-copy" onclick="copyBuffer()">📋 Copier</button>
+            <button class="btn-clear" onclick="clearBuffer()">🗑️ Tout effacer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton buffer (visible si au moins 1 produit) -->
+<button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Buffer</button>
+
+<!-- Bouton + flottant -->
+<button class="fab" onclick="openScanModal()" title="Ajouter un produit">+</button>
+
+<div class="toast" id="toast"></div>
+
 <script>
     let allProducts = [];
+    let bufferProducts = JSON.parse(localStorage.getItem('bufferProducts') || '[]');
+    let scanner = null;
+    let scannerStarted = false;
 
+    // ===== CHARGEMENT PRODUITS =====
     async function loadProducts() {
         try {
-            const response = await fetch('produits.json');
-            if (!response.ok) throw new Error(`Erreur serveur (${response.status})`);
-            allProducts = await response.json();
+            const res = await fetch('produits.json');
+            if (!res.ok) throw new Error(`Erreur ${res.status}`);
+            allProducts = await res.json();
             displayProducts(allProducts);
-        } catch (error) {
-            let message = "Erreur de chargement des données.";
-            if (window.location.protocol === 'file:') {
-                message = "<strong>Attention :</strong> Ouvrez l'app via un <strong>serveur local</strong> (ex: Live Server sur VS Code), pas en file://.";
-            } else {
-                message += `<br><small>${error.message}</small>`;
-            }
-            document.getElementById('productList').innerHTML = `
-                <div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px;margin-top:20px">${message}</div>`;
+        } catch (e) {
+            let msg = window.location.protocol === 'file:'
+                ? "<strong>Attention :</strong> Utilisez un serveur local, pas file://."
+                : `Erreur de chargement.<br><small>${e.message}</small>`;
+            document.getElementById('productList').innerHTML =
+                `<div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px">${msg}</div>`;
         }
     }
 
     function displayProducts(products) {
         const list = document.getElementById('productList');
         list.innerHTML = '';
+        if (products.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:20px;color:#888;">Aucun produit trouvé</div>';
+            return;
+        }
         products.sort((a, b) => a.nom.localeCompare(b.nom)).forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -252,43 +369,174 @@
     function filterProducts() {
         const s = document.getElementById('searchInput').value.toLowerCase();
         const c = document.getElementById('categoryFilter').value;
+        document.getElementById('clearSearch').style.display = s ? 'block' : 'none';
         displayProducts(allProducts.filter(p =>
-            (p.nom.toLowerCase().includes(s) || p.code.includes(s)) &&
-            (c === "" || p.cat === c)
+            (p.nom.toLowerCase().includes(s) || p.code.includes(s)) && (c === "" || p.cat === c)
         ));
     }
 
+    // Croix effacer recherche
+    document.getElementById('clearSearch').addEventListener('click', () => {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('clearSearch').style.display = 'none';
+        filterProducts();
+    });
+    document.getElementById('searchInput').addEventListener('input', filterProducts);
+    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+
+    // ===== MODAL CODE-BARRES =====
     function openModal(product) {
         document.getElementById('modalProductName').textContent = product.nom;
         document.getElementById('modalCodeDisplay').textContent = product.code;
         const format = product.code.length === 13 ? "EAN13" : "CODE128";
-        JsBarcode("#barcode", product.code, {
-            format, lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true
-        });
+        JsBarcode("#barcode", product.code, { format, lineColor: "#000", width: 2.5, height: 120, displayValue: false, flat: true });
         document.getElementById('barcodeModal').style.display = "flex";
     }
+    function closeModal() { document.getElementById('barcodeModal').style.display = "none"; }
 
-    function closeModal() {
-        document.getElementById('barcodeModal').style.display = "none";
+    // ===== MODAL SCANNER =====
+    function openScanModal() {
+        document.getElementById('scanModal').style.display = 'flex';
+        document.getElementById('productForm').style.display = 'none';
+        switchTab('scan');
+        startScanner();
     }
 
-    window.onclick = e => { if (e.target == document.getElementById('barcodeModal')) closeModal(); };
+    function closeScanModal() {
+        stopScanner();
+        document.getElementById('scanModal').style.display = 'none';
+        document.getElementById('productForm').style.display = 'none';
+        document.getElementById('inputCode').value = '';
+        document.getElementById('inputNom').value = '';
+    }
 
-    document.getElementById('searchInput').addEventListener('input', filterProducts);
-    document.getElementById('categoryFilter').addEventListener('change', filterProducts);
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach((b, i) => {
+            b.classList.toggle('active', (tab === 'scan' && i === 0) || (tab === 'manual' && i === 1));
+        });
+        document.getElementById('tabScan').style.display = tab === 'scan' ? 'block' : 'none';
+        document.getElementById('tabManual').style.display = tab === 'manual' ? 'block' : 'none';
+        if (tab === 'scan') {
+            startScanner();
+        } else {
+            stopScanner();
+            document.getElementById('productForm').style.display = 'block';
+        }
+    }
 
+    function startScanner() {
+        if (scannerStarted) return;
+        if (!scanner) {
+            scanner = new Html5Qrcode("scannerView");
+        }
+        scanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 120 } },
+            (decodedText) => {
+                stopScanner();
+                document.getElementById('inputCode').value = decodedText;
+                document.getElementById('inputNom').value = '';
+                document.getElementById('productForm').style.display = 'block';
+                switchTab('manual');
+                document.getElementById('inputNom').focus();
+            },
+            () => {}
+        ).then(() => { scannerStarted = true; })
+         .catch(err => {
+            console.warn('Scanner:', err);
+            switchTab('manual');
+         });
+    }
+
+    function stopScanner() {
+        if (scanner && scannerStarted) {
+            scanner.stop().then(() => { scannerStarted = false; }).catch(() => { scannerStarted = false; });
+        }
+    }
+
+    // ===== BUFFER =====
+    function addToBuffer() {
+        const code = document.getElementById('inputCode').value.trim();
+        const nom  = document.getElementById('inputNom').value.trim();
+        const cat  = document.getElementById('inputCat').value;
+        if (!code || !nom) { showToast("⚠️ Code et nom obligatoires"); return; }
+        bufferProducts.push({ nom, code, cat });
+        localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
+        updateBufferBtn();
+        closeScanModal();
+        showToast(`✅ "${nom}" ajouté au buffer`);
+    }
+
+    function updateBufferBtn() {
+        const btn = document.getElementById('openBufferBtn');
+        btn.style.display = bufferProducts.length > 0 ? 'block' : 'none';
+        btn.textContent = `📋 Buffer (${bufferProducts.length})`;
+    }
+
+    function openBufferModal() {
+        document.getElementById('bufferModal').style.display = 'flex';
+        renderBuffer();
+    }
+    function closeBufferModal() { document.getElementById('bufferModal').style.display = 'none'; }
+
+    function renderBuffer() {
+        document.getElementById('bufferCount').textContent = `${bufferProducts.length} produit(s) en attente`;
+        if (bufferProducts.length === 0) {
+            document.getElementById('jsonOutput').textContent = 'Aucun produit scanné pour l\'instant.';
+            return;
+        }
+        document.getElementById('jsonOutput').textContent = JSON.stringify(bufferProducts, null, 2);
+    }
+
+    function copyBuffer() {
+        if (bufferProducts.length === 0) { showToast("Buffer vide !"); return; }
+        navigator.clipboard.writeText(JSON.stringify(bufferProducts, null, 2))
+            .then(() => showToast("✅ Copié dans le presse-papiers !"))
+            .catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = JSON.stringify(bufferProducts, null, 2);
+                document.body.appendChild(ta);
+                ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast("✅ Copié !");
+            });
+    }
+
+    function clearBuffer() {
+        if (!confirm("Effacer tous les produits du buffer ?")) return;
+        bufferProducts = [];
+        localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
+        updateBufferBtn();
+        renderBuffer();
+        showToast("🗑️ Buffer effacé");
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Fermer modals en cliquant à côté
+    window.onclick = e => {
+        if (e.target == document.getElementById('barcodeModal')) closeModal();
+        if (e.target == document.getElementById('bufferModal')) closeBufferModal();
+        if (e.target == document.getElementById('scanModal')) closeScanModal();
+    };
+
+    // ===== INIT =====
     loadProducts();
+    updateBufferBtn();
 
-    // ✅ Install PWA — Android / Chrome
+    // PWA install
     let deferredPrompt;
     const installBtn = document.getElementById('installBtn');
-
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.style.display = 'block';
+        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
     });
-
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
@@ -297,22 +545,13 @@
             deferredPrompt = null;
         }
     });
-
-    // ✅ Bandeau iOS : Safari sur iPhone/iPad, pas déjà installé
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    const isStandalone = window.navigator.standalone === true;
-    if (isIos && isSafari && !isStandalone) {
+    if (isIos && isSafari && !window.navigator.standalone) {
         document.getElementById('iosBanner').style.display = 'block';
     }
-
-    // ✅ Service Worker
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(r => console.log('SW enregistré:', r.scope))
-                .catch(e => console.error('SW erreur:', e));
-        });
+        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
 </script>
 </body>
