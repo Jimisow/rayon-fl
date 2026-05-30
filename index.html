@@ -215,6 +215,53 @@
         }
         #iosBanner span { font-size: 1.2rem; }
 
+        /* Modal paramètres GitHub */
+        .modal-settings .modal-content { text-align: left; }
+        .modal-settings h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
+        .settings-info {
+            background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+            padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.5;
+        }
+        .settings-info a { color: var(--primary-green); }
+        .btn-settings {
+            position: fixed; bottom: 25px; left: 25px;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: #546e7a; color: white; font-size: 20px;
+            border: none; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500;
+        }
+
+        /* Modal confirmation push */
+        .modal-confirm .modal-content { text-align: left; max-height: 90vh; overflow-y: auto; }
+        .modal-confirm h2 { text-align: center; color: var(--primary-green); margin-top: 0; }
+        .confirm-list {
+            background: var(--bg-light); border-radius: 8px; padding: 10px 14px;
+            max-height: 40vh; overflow-y: auto; margin: 12px 0;
+            font-size: 14px; line-height: 2;
+        }
+        .confirm-item { border-bottom: 1px solid #eee; padding: 4px 0; }
+        .confirm-item:last-child { border-bottom: none; }
+        .confirm-item .dup-tag {
+            background: #ffebee; color: #c62828; font-size: 11px;
+            padding: 2px 6px; border-radius: 10px; margin-left: 6px;
+        }
+        .confirm-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-confirm-ok {
+            flex: 1; padding: 13px; background: var(--primary-green);
+            color: white; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .btn-confirm-cancel {
+            flex: 1; padding: 13px; background: #eee;
+            color: #333; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: bold; cursor: pointer;
+        }
+        .push-loading {
+            text-align: center; padding: 20px; font-size: 15px; color: var(--primary-green);
+        }
+
         .toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
             background: #333; color: white; padding: 10px 20px;
@@ -312,6 +359,49 @@
             <button class="btn-copy" onclick="copyBuffer()">📋 Copier</button>
             <button class="btn-clear" onclick="clearBuffer()">🗑️ Tout effacer</button>
         </div>
+        <button class="btn-validate" style="margin-top:10px;" onclick="openConfirmModal()">🚀 Publier sur GitHub</button>
+    </div>
+</div>
+
+<!-- Bouton paramètres -->
+<button class="btn-settings" onclick="openSettings()" title="Paramètres GitHub">⚙️</button>
+
+<!-- Modal paramètres GitHub -->
+<div id="settingsModal" class="modal modal-settings">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeSettings()">&times;</span>
+        <h2>⚙️ Paramètres GitHub</h2>
+        <div class="settings-info">
+            🔑 Votre token GitHub est stocké <strong>uniquement sur ce téléphone</strong>, jamais dans le code.<br><br>
+            Pour créer un token : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
+            Cochez <strong>repo</strong> → durée illimitée → Générer.
+        </div>
+        <div class="form-group">
+            <label>Token GitHub</label>
+            <input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <div class="form-group">
+            <label>Propriétaire du repo</label>
+            <input type="text" id="inputOwner" placeholder="jimisow">
+        </div>
+        <div class="form-group">
+            <label>Nom du repo</label>
+            <input type="text" id="inputRepo" placeholder="rayon-fl">
+        </div>
+        <div class="form-group">
+            <label>Branche</label>
+            <input type="text" id="inputBranch" placeholder="main">
+        </div>
+        <button class="btn-validate" onclick="saveSettings()">💾 Enregistrer</button>
+    </div>
+</div>
+
+<!-- Modal confirmation push -->
+<div id="confirmModal" class="modal modal-confirm">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeConfirmModal()">&times;</span>
+        <h2>🚀 Publier sur GitHub</h2>
+        <div id="confirmContent"></div>
     </div>
 </div>
 
@@ -519,6 +609,142 @@
         showToast("🗑️ Buffer effacé");
     }
 
+    // ===== PARAMÈTRES =====
+    function openSettings() {
+        document.getElementById('inputToken').value  = localStorage.getItem('gh_token')  || '';
+        document.getElementById('inputOwner').value  = localStorage.getItem('gh_owner')  || '';
+        document.getElementById('inputRepo').value   = localStorage.getItem('gh_repo')   || '';
+        document.getElementById('inputBranch').value = localStorage.getItem('gh_branch') || 'main';
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+    function saveSettings() {
+        localStorage.setItem('gh_token',  document.getElementById('inputToken').value.trim());
+        localStorage.setItem('gh_owner',  document.getElementById('inputOwner').value.trim());
+        localStorage.setItem('gh_repo',   document.getElementById('inputRepo').value.trim());
+        localStorage.setItem('gh_branch', document.getElementById('inputBranch').value.trim() || 'main');
+        closeSettings();
+        showToast('✅ Paramètres enregistrés');
+    }
+
+    // ===== GITHUB API =====
+    async function ghGet(path) {
+        const token  = localStorage.getItem('gh_token');
+        const owner  = localStorage.getItem('gh_owner');
+        const repo   = localStorage.getItem('gh_repo');
+        const branch = localStorage.getItem('gh_branch') || 'main';
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
+            headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+        });
+        if (!res.ok) throw new Error(`GitHub: ${res.status} ${res.statusText}`);
+        return res.json();
+    }
+
+    async function ghPut(path, message, contentB64, sha) {
+        const token  = localStorage.getItem('gh_token');
+        const owner  = localStorage.getItem('gh_owner');
+        const repo   = localStorage.getItem('gh_repo');
+        const branch = localStorage.getItem('gh_branch') || 'main';
+        const body = { message, content: contentB64, branch };
+        if (sha) body.sha = sha;
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.message || res.statusText);
+        }
+        return res.json();
+    }
+
+    function toB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+
+    function getNextSwVersion(swContent) {
+        const match = swContent.match(/rayon-frais-v(\d+)/);
+        if (!match) return 'rayon-frais-v2';
+        return `rayon-frais-v${parseInt(match[1]) + 1}`;
+    }
+
+    // ===== CONFIRMATION PUSH =====
+    function openConfirmModal() {
+        if (!localStorage.getItem('gh_token')) {
+            showToast('⚙️ Configurez d'abord vos paramètres GitHub');
+            openSettings(); return;
+        }
+        if (bufferProducts.length === 0) { showToast('Buffer vide !'); return; }
+
+        const existing = allProducts.map(p => p.code);
+        const items = bufferProducts.map(p => {
+            const isDup = existing.includes(p.code);
+            return `<div class="confirm-item">
+                <strong>${p.nom}</strong> <span style="color:#888">(${p.cat})</span><br>
+                <span style="font-family:monospace;font-size:13px">${p.code}</span>
+                ${isDup ? '<span class="dup-tag">⚠️ doublon</span>' : ''}
+            </div>`;
+        }).join('');
+
+        const dupCount = bufferProducts.filter(p => existing.includes(p.code)).length;
+        const dupWarn  = dupCount > 0 ? `<div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px;font-size:13px;color:#5d4037;margin-bottom:8px">⚠️ ${dupCount} produit(s) déjà existant(s) seront ignorés.</div>` : '';
+
+        document.getElementById('confirmContent').innerHTML = `
+            <p style="margin:0 0 8px;font-size:14px">Vous êtes sur le point d'ajouter <strong>${bufferProducts.length} produit(s)</strong> :</p>
+            <div class="confirm-list">${items}</div>
+            ${dupWarn}
+            <div class="confirm-actions">
+                <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Annuler</button>
+                <button class="btn-confirm-ok" onclick="pushToGitHub()">✅ Confirmer</button>
+            </div>`;
+        document.getElementById('confirmModal').style.display = 'flex';
+        closeBufferModal();
+    }
+    function closeConfirmModal() { document.getElementById('confirmModal').style.display = 'none'; }
+
+    async function pushToGitHub() {
+        document.getElementById('confirmContent').innerHTML = '<div class="push-loading">⏳ Publication en cours...</div>';
+        try {
+            // 1. Lire produits.json actuel
+            const prodFile = await ghGet('produits.json');
+            const existing = JSON.parse(atob(prodFile.content.replace(/\n/g, '')));
+
+            // 2. Fusionner en ignorant les doublons
+            const existingCodes = existing.map(p => p.code);
+            const newProds = bufferProducts.filter(p => !existingCodes.includes(p.code));
+            const merged   = [...existing, ...newProds];
+
+            // 3. Lire sw.js actuel
+            const swFile    = await ghGet('sw.js');
+            const swContent = atob(swFile.content.replace(/\n/g, ''));
+            const newVersion = getNextSwVersion(swContent);
+            const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
+
+            // 4. Pousser produits.json
+            const prodJson = JSON.stringify(merged, null, 2);
+            await ghPut('produits.json', `Ajout de ${newProds.length} produit(s)`, toB64(prodJson), prodFile.sha);
+
+            // 5. Pousser sw.js
+            await ghPut('sw.js', `Bump cache ${newVersion}`, toB64(newSwContent), swFile.sha);
+
+            // 6. Succès
+            allProducts = merged;
+            displayProducts(allProducts);
+            bufferProducts = [];
+            localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
+            updateBufferBtn();
+            closeConfirmModal();
+            showToast(`✅ ${newProds.length} produit(s) publié(s) !`);
+        } catch(e) {
+            document.getElementById('confirmContent').innerHTML = `
+                <div style="color:#d32f2f;background:#ffebee;padding:15px;border-radius:8px;font-size:14px">
+                    ❌ Erreur : ${e.message}
+                </div>
+                <div class="confirm-actions">
+                    <button class="btn-confirm-cancel" onclick="closeConfirmModal()">Fermer</button>
+                </div>`;
+        }
+    }
+
     // ===== TOAST =====
     function showToast(msg) {
         const t = document.getElementById('toast');
@@ -532,6 +758,8 @@
         if (e.target == document.getElementById('barcodeModal')) closeModal();
         if (e.target == document.getElementById('bufferModal')) closeBufferModal();
         if (e.target == document.getElementById('scanModal')) closeScanModal();
+        if (e.target == document.getElementById('settingsModal')) closeSettings();
+        if (e.target == document.getElementById('confirmModal')) closeConfirmModal();
     };
 
     // ===== INIT =====
