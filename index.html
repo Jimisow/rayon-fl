@@ -223,15 +223,7 @@
             padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.5;
         }
         .settings-info a { color: var(--primary-green); }
-        .btn-settings {
-            position: fixed; bottom: 25px; left: 25px;
-            width: 42px; height: 42px; border-radius: 50%;
-            background: #546e7a; color: white; font-size: 20px;
-            border: none; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 500;
-        }
+
 
         /* Modal confirmation push */
         .modal-confirm .modal-content { text-align: left; max-height: 90vh; overflow-y: auto; }
@@ -363,9 +355,6 @@
     </div>
 </div>
 
-<!-- Bouton paramètres -->
-<button class="btn-settings" onclick="openSettings()" title="Paramètres GitHub">⚙️</button>
-
 <!-- Modal paramètres GitHub -->
 <div id="settingsModal" class="modal modal-settings">
     <div class="modal-content">
@@ -409,7 +398,7 @@
 <button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Buffer</button>
 
 <!-- Bouton + flottant -->
-<button class="fab" onclick="openScanModal()" title="Ajouter un produit">+</button>
+<button class="fab" id="fabBtn" title="Ajouter un produit">+</button>
 
 <div class="toast" id="toast"></div>
 
@@ -609,6 +598,33 @@
         showToast("🗑️ Buffer effacé");
     }
 
+    // ===== FAB : clic court = scanner, appui long = paramètres =====
+    (function() {
+        const fab = document.getElementById('fabBtn');
+        let pressTimer = null;
+
+        fab.addEventListener('mousedown', () => {
+            pressTimer = setTimeout(() => { pressTimer = null; openSettings(); }, 800);
+        });
+        fab.addEventListener('mouseup', () => {
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; openScanModal(); }
+        });
+        fab.addEventListener('mouseleave', () => {
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        });
+        fab.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            pressTimer = setTimeout(() => { pressTimer = null; openSettings(); }, 800);
+        }, { passive: false });
+        fab.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; openScanModal(); }
+        });
+        fab.addEventListener('touchmove', () => {
+            if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        });
+    })();
+
     // ===== PARAMÈTRES =====
     function openSettings() {
         document.getElementById('inputToken').value  = localStorage.getItem('gh_token')  || '';
@@ -717,7 +733,7 @@
             const swFile    = await ghGet('sw.js');
             const swContent = atob(swFile.content.replace(/\n/g, ''));
             const newVersion = getNextSwVersion(swContent);
-            const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
+            const newSwContent = swContent.replace(/rayon-frais-v\d+/g, newVersion);
 
             // 4. Pousser produits.json
             const prodJson = JSON.stringify(merged, null, 2);
