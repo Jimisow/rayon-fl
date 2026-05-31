@@ -263,7 +263,7 @@
         <span class="close-btn" onclick="closeModal()">✕</span>
         <p class="modal-title" id="modalProductName" style="text-align:center"></p>
         <div id="modalCodeDisplay" class="big-code" style="text-align:center"></div>
-        <svg id="barcode" style="display:block;margin:0 auto"></svg>
+        <svg id="barcode" style="display:block;margin:0 auto;max-width:100%"></svg>
     </div>
 </div>
 
@@ -517,6 +517,11 @@ function openModal(product) {
     document.getElementById('modalProductName').textContent = product.nom;
     document.getElementById('modalCodeDisplay').textContent = product.code;
     JsBarcode('#barcode', product.code, { format: 'CODE128', lineColor: '#000', width: 2.5, height: 110, displayValue: false, flat: true });
+    const svg = document.getElementById('barcode');
+    svg.style.display = 'block';
+    svg.style.margin = '0 auto';
+    svg.removeAttribute('width');
+    svg.style.width = '100%';
     document.getElementById('barcodeModal').style.display = 'flex';
 }
 function closeModal() { document.getElementById('barcodeModal').style.display = 'none'; }
