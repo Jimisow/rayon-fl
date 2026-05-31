@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rayon-frais-v10';
+const CACHE_NAME = 'rayon-frais-v11';
 const ASSETS = [
   './index.html',
   './produits.json',
