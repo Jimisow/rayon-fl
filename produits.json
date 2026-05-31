@@ -23,10 +23,10 @@
   { "nom": "Brede Cresson", "code": "92404", "cat": "Légumes" },
   { "nom": "Menthe", "code": "92429", "cat": "Autres" },
   { "nom": "Oignon vert", "code": "92407", "cat": "Légumes" },
-  { "nom": "Persil", "code": "92425", "cat": "Autres" },
+  { "nom": "Persil Normal", "code": "92425", "cat": "Autres" },
   { "nom": "Persil frise", "code": "90351", "cat": "Autres" },
   { "nom": "Radis botte", "code": "92456", "cat": "Légumes" },
   { "nom": "Salade", "code": "92401", "cat": "Légumes" },
   { "nom": "Thym", "code": "92424", "cat": "Autres" },
-  { "nom": "Teste", "code": "12345", "cat": "Autres" }
+  { "nom": "L'huile", "code": "123456", "cat": "Autres" }
 ]
