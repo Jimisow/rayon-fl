@@ -99,6 +99,7 @@
 
         /* ── MODALS ── */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: flex-end; }
+        #barcodeModal { align-items: center; }
         .modal-sheet {
             background: var(--surface); width: 100%; max-width: 480px;
             padding: 12px 20px 36px; border-radius: var(--r3) var(--r3) 0 0;
@@ -202,21 +203,7 @@
         .fab:active { transform: scale(0.91); }
         .fab.long-press { background: linear-gradient(145deg, #455a64, #263238); box-shadow: 0 6px 22px rgba(0,0,0,0.35); }
 
-        /* ── BOUTON REFRESH ── */
-        .btn-refresh {
-            position: fixed; bottom: 30px; left: 30px;
-            width: 46px; height: 46px; border-radius: 50%;
-            background: var(--surface); color: var(--text2);
-            border: 1.5px solid var(--border); cursor: pointer;
-            box-shadow: var(--sh2); display: flex; align-items: center; justify-content: center;
-            font-size: 20px; z-index: 500; transition: transform 0.15s;
-            user-select: none; -webkit-user-select: none;
-        }
-        .btn-refresh:active { transform: scale(0.9) rotate(180deg); }
-        /* Badge point rouge */
-        .btn-refresh .badge { position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; background: #e53935; border-radius: 50%; border: 2px solid var(--bg); display: none; }
-        .btn-refresh-wrapper { position: fixed; bottom: 30px; left: 30px; z-index: 500; }
-        .badge-dot { position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; background: #e53935; border-radius: 50%; border: 2px solid var(--bg); display: none; pointer-events: none; }
+
 
         /* ── TOAST ── */
         .toast {
@@ -272,12 +259,11 @@
 
 <!-- Modal code-barres -->
 <div id="barcodeModal" class="modal">
-    <div class="modal-sheet">
-        <div class="sheet-handle"></div>
+    <div class="modal-sheet center">
         <span class="close-btn" onclick="closeModal()">✕</span>
-        <p class="modal-title" id="modalProductName"></p>
-        <div id="modalCodeDisplay" class="big-code"></div>
-        <svg id="barcode"></svg>
+        <p class="modal-title" id="modalProductName" style="text-align:center"></p>
+        <div id="modalCodeDisplay" class="big-code" style="text-align:center"></div>
+        <svg id="barcode" style="display:block;margin:0 auto"></svg>
     </div>
 </div>
 
@@ -379,18 +365,14 @@
         <hr class="settings-divider">
         <p class="settings-section">Mise à jour du cache</p>
         <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">L'app n'affiche pas les dernières modifications ? Videz le cache ici.</p>
-        <button class="btn-primary btn-blue" onclick="forceRefresh()">🔄 Vider le cache et recharger</button>
+        <button class="btn-primary btn-blue" id="bumpBtn" onclick="bumpSwManually()">🔄 Forcer la mise à jour (bump SW)</button>
     </div>
 </div>
 
 <!-- Bouton buffer flottant -->
 <button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Modifications (0)</button>
 
-<!-- Bouton refresh avec badge -->
-<div class="btn-refresh-wrapper" id="refreshWrapper">
-    <button class="btn-refresh" onclick="forceRefresh()" title="Vider le cache">&#x267B;</button>
-    <div class="badge-dot" id="badgeDot"></div>
-</div>
+<div id="badgeDot" style="display:none"></div>
 
 <!-- FAB -->
 <button class="fab" id="fabBtn">+</button>
@@ -689,19 +671,24 @@ function saveSettings() {
     closeSettings(); showToast('✅ Paramètres enregistrés');
 }
 
-// ===== REFRESH =====
-async function forceRefresh() {
-    closeSettings();
-    showToast('🔄 Vidage du cache...');
+// ===== BUMP SW MANUEL =====
+async function bumpSwManually() {
+    if (!localStorage.getItem('gh_token')) { showToast('⚙️ Token GitHub requis'); return; }
+    const btn = document.getElementById('bumpBtn');
+    if (btn) btn.textContent = '⏳ En cours...';
     try {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(function(k){ return caches.delete(k); }));
-        if ('serviceWorker' in navigator) {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map(function(r){ return r.unregister(); }));
-        }
-        window.location.reload(true);
-    } catch(e) { showToast('❌ Erreur : ' + e.message); }
+        const swFile = await ghGet('sw.js');
+        const swContent = fromB64(swFile.content);
+        const newVersion = getNextSwVersion(swContent);
+        const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
+        await ghPut('sw.js', 'Bump manuel ' + newVersion, toB64(newSwContent), swFile.sha);
+        closeSettings();
+        showToast('✅ ' + newVersion + ' — fermez et relancez dans 2 min');
+    } catch(e) {
+        showToast('❌ ' + e.message);
+    } finally {
+        if (btn) btn.textContent = '🔄 Forcer la mise à jour (bump SW)';
+    }
 }
 
 // ===== GITHUB =====
@@ -795,6 +782,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }
     function endPress(doOpen) {
         if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; if (doOpen && !longPressed) openScanModal(); }
+        else if (doOpen && longPressed) { longPressed = false; } // consommer sans ouvrir
     }
     fab.addEventListener('mousedown', startPress);
     fab.addEventListener('mouseup', function(){ endPress(true); });
