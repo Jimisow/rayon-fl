@@ -426,7 +426,13 @@ async function ghPut(path, message, contentB64, sha) {
     return res.json();
 }
 
-function toB64(str) { return btoa(unescape(encodeURIComponent(str))); }
+function toB64(str) {
+    // Encodage UTF-8 fiable via TextEncoder
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+}
 
 function getNextSwVersion(swContent) {
     const match = swContent.match(/rayon-frais-v(\d+)/);
@@ -478,7 +484,11 @@ async function pushToGitHub() {
         const newVersion = getNextSwVersion(swContent);
         const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
 
-        await ghPut('produits.json', 'Ajout de ' + newProds.length + ' produit(s)', toB64(JSON.stringify(merged, null, 2)), prodFile.sha);
+        const prodJson = '[\n' + merged.map((p, i) =>
+            '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' +
+            (i < merged.length - 1 ? ',' : '')
+        ).join('\n') + '\n]';
+        await ghPut('produits.json', 'Ajout de ' + newProds.length + ' produit(s)', toB64(prodJson), prodFile.sha);
         await ghPut('sw.js', 'Bump cache ' + newVersion, toB64(newSwContent), swFile.sha);
 
         allProducts = merged;
