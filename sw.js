@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rayon-frais-v3';
+const CACHE_NAME = 'rayon-frais-v4';
 const ASSETS = [
   './index.html',
   './produits.json',
@@ -12,29 +12,29 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting()) // Active immÃÂ©diatement sans attendre
+      .then(() => self.skipWaiting()) // Active immÃÂÃÂ©diatement sans attendre
   );
 });
 
-// Activation : supprime les vieux caches et prend le contrÃÂ´le immÃÂ©diatement
+// Activation : supprime les vieux caches et prend le contrÃÂÃÂ´le immÃÂÃÂ©diatement
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       ))
-      .then(() => self.clients.claim()) // Prend le contrÃÂ´le de tous les onglets ouverts
+      .then(() => self.clients.claim()) // Prend le contrÃÂÃÂ´le de tous les onglets ouverts
   );
 });
 
-// StratÃÂ©gie Network-First pour les fichiers locaux (index, json, manifest)
-// Cache-First pour les CDN externes (pas besoin de re-tÃÂ©lÃÂ©charger ÃÂ  chaque fois)
+// StratÃÂÃÂ©gie Network-First pour les fichiers locaux (index, json, manifest)
+// Cache-First pour les CDN externes (pas besoin de re-tÃÂÃÂ©lÃÂÃÂ©charger ÃÂÃÂ  chaque fois)
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   const isLocal = url.origin === self.location.origin;
 
   if (isLocal) {
-    // Network-First : essaie le rÃÂ©seau, met ÃÂ  jour le cache, fallback sur cache si offline
+    // Network-First : essaie le rÃÂÃÂ©seau, met ÃÂÃÂ  jour le cache, fallback sur cache si offline
     e.respondWith(
       fetch(e.request)
         .then(networkRes => {
