@@ -1,157 +1,34 @@
 [
-  {
-    "nom": "Ail chinois",
-    "code": "92421",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Ananas",
-    "code": "92356",
-    "cat": "Fruits"
-  },
-  {
-    "nom": "Artichauts",
-    "code": "92460",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Avocat",
-    "code": "92358",
-    "cat": "Fruits"
-  },
-  {
-    "nom": "Basilic",
-    "code": "90350",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Brede Chou",
-    "code": "92489",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede Chou chine",
-    "code": "92412",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede Chouchou",
-    "code": "92414",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede Citrouille",
-    "code": "92417",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede lastron",
-    "code": "92487",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede mafane",
-    "code": "92416",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede morel",
-    "code": "92413",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede moutarde",
-    "code": "92428",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede Pariataire",
-    "code": "92419",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Brede Patate",
-    "code": "92415",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "CÃ©leri",
-    "code": "92461",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Chou fleur",
-    "code": "92463",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Chou vert",
-    "code": "92462",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Coco",
-    "code": "92350",
-    "cat": "Fruits"
-  },
-  {
-    "nom": "Concombre",
-    "code": "92450",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Coton mili",
-    "code": "92422",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Cresson",
-    "code": "92404",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Menthe",
-    "code": "92429",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Oignon vert",
-    "code": "92407",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Persil",
-    "code": "92425",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Persil frise",
-    "code": "90351",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Radis botte",
-    "code": "92456",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Salade",
-    "code": "92401",
-    "cat": "LÃ©gumes"
-  },
-  {
-    "nom": "Thym",
-    "code": "92424",
-    "cat": "Autres"
-  },
-  {
-    "nom": "kabri",
-    "code": "123456789012345",
-    "cat": "Autres"
-  },
-  {
-    "nom": "Huile",
-    "code": "747463728",
-    "cat": "Autres"
-  }
+  { "nom": "Ail chinois", "code": "92421", "cat": "LÃÂ©gumes" },
+  { "nom": "Ananas", "code": "92356", "cat": "Fruits" },
+  { "nom": "Artichauts", "code": "92460", "cat": "LÃÂ©gumes" },
+  { "nom": "Avocat", "code": "92358", "cat": "Fruits" },
+  { "nom": "Basilic", "code": "90350", "cat": "Autres" },
+  { "nom": "Brede Chou", "code": "92489", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede Chou chine", "code": "92412", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede Chouchou", "code": "92414", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede Citrouille", "code": "92417", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede lastron", "code": "92487", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede mafane", "code": "92416", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede morel", "code": "92413", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede moutarde", "code": "92428", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede Pariataire", "code": "92419", "cat": "LÃÂ©gumes" },
+  { "nom": "Brede Patate", "code": "92415", "cat": "LÃÂ©gumes" },
+  { "nom": "CÃÂ©leri", "code": "92461", "cat": "Autres" },
+  { "nom": "Chou fleur", "code": "92463", "cat": "LÃÂ©gumes" },
+  { "nom": "Chou vert", "code": "92462", "cat": "LÃÂ©gumes" },
+  { "nom": "Coco", "code": "92350", "cat": "Fruits" },
+  { "nom": "Concombre", "code": "92450", "cat": "LÃÂ©gumes" },
+  { "nom": "Coton mili", "code": "92422", "cat": "LÃÂ©gumes" },
+  { "nom": "Cresson", "code": "92404", "cat": "LÃÂ©gumes" },
+  { "nom": "Menthe", "code": "92429", "cat": "Autres" },
+  { "nom": "Oignon vert", "code": "92407", "cat": "LÃÂ©gumes" },
+  { "nom": "Persil", "code": "92425", "cat": "Autres" },
+  { "nom": "Persil frise", "code": "90351", "cat": "Autres" },
+  { "nom": "Radis botte", "code": "92456", "cat": "LÃÂ©gumes" },
+  { "nom": "Salade", "code": "92401", "cat": "LÃÂ©gumes" },
+  { "nom": "Thym", "code": "92424", "cat": "Autres" },
+  { "nom": "kabri", "code": "123456789012345", "cat": "Autres" },
+  { "nom": "Huile", "code": "747463728", "cat": "Autres" },
+  { "nom": "Choux rouge réunion", "code": "200400000000", "cat": "Légumes" }
 ]
