@@ -243,9 +243,9 @@
         <div class="form-group"><label>Nom du repo</label><input type="text" id="inputRepo" placeholder="rayon-fl"></div>
         <div class="form-group"><label>Branche</label><input type="text" id="inputBranch" placeholder="main"></div>
         <div style="border-top: 1px solid #eee; margin: 16px 0 14px; padding-top: 14px;">
-            <p style="margin: 0 0 10px; font-size: 13px; font-weight: 600; color: #888;">FORCER LA MISE À JOUR DU CACHE</p>
-            <p style="margin: 0 0 12px; font-size: 13px; color: #888; line-height: 1.5;">Utilisez ceci si l'app n'affiche pas les dernières modifications après une publication.</p>
-            <button class="btn-primary" style="background:#1565c0;" onclick="bumpSwManually()">🔄 Forcer la mise à jour</button>
+            <p style="margin: 0 0 10px; font-size: 13px; font-weight: 600; color: #888;">FORCER LA MISE À JOUR</p>
+            <p style="margin: 0 0 12px; font-size: 13px; color: #888; line-height: 1.5;">L'app ne montre pas les dernières modifications ? Appuyez ici pour vider le cache et recharger.</p>
+            <button class="btn-primary" style="background:#1565c0;" onclick="forceRefresh()">🔄 Vider le cache et recharger</button>
         </div>
         <button class="btn-primary" onclick="saveSettings()">💾 Enregistrer</button>
     </div>
@@ -253,6 +253,13 @@
 
 <!-- Bouton buffer flottant -->
 <button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Modifications (0)</button>
+
+<!-- Bouton refresh flottant -->
+<button id="refreshBtn" onclick="forceRefresh()" title="Vider le cache et recharger"
+    style="position:fixed;bottom:25px;left:25px;width:42px;height:42px;border-radius:50%;
+    background:#546e7a;color:white;font-size:22px;border:none;cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;
+    justify-content:center;z-index:500;">&#x267B;</button>
 
 <!-- FAB -->
 <button class="fab" id="fabBtn">+</button>
@@ -740,23 +747,23 @@ async function pushToGitHub() {
     }
 }
 
-// ===== BUMP SW MANUEL =====
-async function bumpSwManually() {
-    if (!localStorage.getItem('gh_token')) { showToast('⚙️ Token GitHub requis'); return; }
-    const btn = document.querySelector('#settingsModal .btn-primary[onclick*="bumpSw"]');
-    if (btn) btn.textContent = '⏳ En cours...';
+// ===== RESET LOCAL =====
+async function forceRefresh() {
+    closeSettings();
+    showToast('🔄 Vidage du cache...');
     try {
-        const swFile = await ghGet('sw.js');
-        const swContent = fromB64(swFile.content);
-        const newVersion = getNextSwVersion(swContent);
-        const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
-        await ghPut('sw.js', 'Bump manuel cache ' + newVersion, toB64(newSwContent), swFile.sha);
-        closeSettings();
-        showToast('✅ Cache mis à jour (' + newVersion + ') — relancez l\'app dans 2 min');
+        // Supprimer tous les caches SW
+        const keys = await caches.keys();
+        await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+        // Désinscrire le SW pour repartir propre
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(function(r){ return r.unregister(); }));
+        }
+        // Recharger la page — le SW se réinstalle avec les fichiers frais depuis GitHub
+        window.location.reload(true);
     } catch(e) {
         showToast('❌ Erreur : ' + e.message);
-    } finally {
-        if (btn) btn.textContent = '🔄 Forcer la mise à jour';
     }
 }
 
