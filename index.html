@@ -5,146 +5,277 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Rayon Frais</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2e7d32">
+    <meta name="theme-color" content="#1a3d1f">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Rayon Frais">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         :root {
-            --primary-green: #2e7d32;
-            --light-green: #e8f5e9;
-            --accent-green: #4caf50;
-            --text-dark: #1b5e20;
-            --bg-light: #f9fbf9;
+            --g900: #1a3d1f; --g800: #2e7d32; --g700: #388e3c; --g500: #4caf50;
+            --g200: #c8e6c9; --g100: #e8f5e9; --g50: #f1f8f1;
+            --bg: #f0f4f0; --surface: #ffffff; --surface2: #f7faf7;
+            --text1: #1a2e1b; --text2: #4a6b4c; --text3: #8aaa8c;
+            --border: rgba(46,125,50,0.1);
+            --sh1: 0 1px 4px rgba(0,0,0,0.06);
+            --sh2: 0 4px 20px rgba(0,0,0,0.09);
+            --sh3: 0 12px 40px rgba(0,0,0,0.13);
+            --r1: 12px; --r2: 18px; --r3: 26px;
         }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-light); color: var(--text-dark); margin: 0; padding-bottom: 80px; }
-        header { background: var(--primary-green); color: white; padding: 1rem; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text1); padding-bottom: 110px; }
 
-        /* Recherche */
-        .search-controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .search-wrapper { position: relative; }
-        .search-wrapper input { width: 100%; padding: 12px 40px 12px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; }
-        .search-wrapper input:focus { border-color: var(--accent-green); }
-        .clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; color: #aaa; cursor: pointer; display: none; padding: 4px; line-height: 1; }
-        select { padding: 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; width: 100%; background: white; }
-        select:focus { border-color: var(--accent-green); }
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(160deg, #1a3d1f 0%, #2e7d32 55%, #43a047 100%);
+            padding: 20px 20px 22px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+        }
+        .hdr-top { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; }
+        .hdr-emoji { font-size: 26px; }
+        header h1 { font-size: 1.18rem; font-weight: 700; color: white; letter-spacing: -0.2px; }
+        .hdr-search { position: relative; }
+        .hdr-search input {
+            width: 100%; padding: 11px 40px 11px 38px;
+            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
+            border-radius: 50px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;
+            outline: none; transition: background 0.2s, border-color 0.2s; backdrop-filter: blur(8px);
+        }
+        .hdr-search input::placeholder { color: rgba(255,255,255,0.6); }
+        .hdr-search input:focus { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
+        .hdr-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+        .hdr-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; color: white; cursor: pointer; display: none; align-items: center; justify-content: center; font-weight: 700; }
 
-        /* Produits avec swipe */
-        .product-list { display: flex; flex-direction: column; gap: 10px; }
-        .swipe-wrapper { position: relative; overflow: hidden; border-radius: 10px; }
+        /* ── FILTRES ── */
+        .filters { display: flex; gap: 8px; padding: 14px 16px 0; max-width: 600px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+        .filters::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            flex-shrink: 0; padding: 7px 16px; border-radius: 50px;
+            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
+            border: 1.5px solid var(--border); background: var(--surface);
+            color: var(--text2); cursor: pointer; transition: all 0.18s;
+            box-shadow: var(--sh1);
+        }
+        .filter-chip.active { background: var(--g800); color: white; border-color: var(--g800); box-shadow: 0 3px 10px rgba(46,125,50,0.3); }
+
+        /* ── CONTAINER ── */
+        .container { padding: 12px 16px; max-width: 600px; margin: 0 auto; }
+        .list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .list-title { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text3); }
+
+        /* ── CARTES ── */
+        .product-list { display: flex; flex-direction: column; gap: 7px; }
+        .swipe-wrapper { position: relative; overflow: hidden; border-radius: var(--r1); }
         .swipe-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; }
-        .swipe-btn { width: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: none; font-size: 11px; font-weight: 600; color: white; }
-        .swipe-btn.edit { background: #1565c0; }
-        .swipe-btn.delete { background: #d32f2f; border-radius: 0 10px 10px 0; }
+        .swipe-btn { width: 68px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; border: none; font-size: 10px; font-weight: 700; color: white; letter-spacing: 0.2px; }
+        .swipe-btn.edit { background: #1976d2; }
+        .swipe-btn.delete { background: #e53935; border-radius: 0 var(--r1) var(--r1) 0; }
         .swipe-btn span { font-size: 20px; line-height: 1; }
-        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s ease; position: relative; z-index: 2; user-select: none; -webkit-user-select: none; }
-        .product-card.swiped { transform: translateX(-120px); }
-        .product-card:active { background-color: var(--light-green); }
-        .product-info .nom { font-weight: bold; font-size: 1.1rem; display: block; }
-        .product-info .cat-tag { font-size: 0.8rem; color: var(--primary-green); background: var(--light-green); padding: 2px 8px; border-radius: 10px; margin-top: 4px; display: inline-block; }
+        .product-card {
+            background: var(--surface); padding: 12px 14px;
+            border-radius: var(--r1); border: 1px solid var(--border);
+            box-shadow: var(--sh1); display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+            position: relative; z-index: 2; user-select: none; -webkit-user-select: none;
+        }
+        .product-card.swiped { transform: translateX(-136px); }
+        .product-card:active { background: var(--g50); }
+        .card-left { display: flex; align-items: center; gap: 12px; }
+        .cat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+        .cat-icon.fruits { background: #fff3e0; }
+        .cat-icon.legumes { background: var(--g100); }
+        .cat-icon.autres { background: #f3e5f5; }
+        .card-nom { font-weight: 600; font-size: 0.93rem; color: var(--text1); letter-spacing: -0.1px; }
+        .cat-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 20px; margin-top: 4px; display: inline-block; }
+        .cat-badge.fruits { color: #bf360c; background: #fff3e0; }
+        .cat-badge.legumes { color: var(--g800); background: var(--g100); }
+        .cat-badge.autres { color: #6a1b9a; background: #f3e5f5; }
+        .card-arrow { color: var(--text3); font-size: 20px; font-weight: 300; }
 
-        /* Modals */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; }
-        .modal-content.left { text-align: left; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; line-height: 1; }
-        .modal-title { text-align: center; color: var(--primary-green); margin-top: 0; font-size: 1.2rem; }
-        .big-code { font-size: 2.5rem; font-weight: bold; letter-spacing: 5px; margin: 20px 0; color: #000; }
+        /* ── MODALS ── */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: flex-end; }
+        .modal-sheet {
+            background: var(--surface); width: 100%; max-width: 480px;
+            padding: 12px 20px 36px; border-radius: var(--r3) var(--r3) 0 0;
+            position: relative; max-height: 92vh; overflow-y: auto;
+            box-shadow: 0 -4px 40px rgba(0,0,0,0.15);
+            animation: slideUp 0.3s cubic-bezier(.32,1.2,.55,1);
+        }
+        .modal-sheet.center { border-radius: var(--r3); margin: auto; width: 90%; max-width: 380px; padding: 24px 20px 28px; animation: popIn 0.25s cubic-bezier(.32,1.2,.55,1); }
+        @keyframes slideUp { from { transform: translateY(110%); } to { transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .sheet-handle { width: 38px; height: 4px; background: var(--g200); border-radius: 2px; margin: 0 auto 18px; }
+        .close-btn { position: absolute; top: 14px; right: 14px; width: 28px; height: 28px; background: var(--bg); border: none; border-radius: 50%; font-size: 14px; cursor: pointer; color: var(--text2); display: flex; align-items: center; justify-content: center; }
+        .modal-title { font-size: 1.05rem; font-weight: 700; color: var(--text1); margin-bottom: 18px; }
+        .big-code { font-size: 2rem; font-weight: 700; letter-spacing: 5px; margin: 14px 0; color: var(--text1); }
         #barcode { max-width: 100%; }
 
-        /* Formulaires */
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 15px; background: white; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
+        /* ── FORMULAIRES ── */
+        .form-group { margin-bottom: 13px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 13px; border: 1.5px solid var(--border);
+            border-radius: var(--r1); font-size: 15px; font-family: 'Inter', sans-serif;
+            background: var(--surface2); color: var(--text1); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            appearance: none;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--g500); background: var(--surface); box-shadow: 0 0 0 3px rgba(76,175,80,0.12); }
+        .form-group select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238aaa8c' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; background-color: var(--surface2); padding-right: 36px; }
+        .form-group select:focus { background-color: var(--surface); }
 
-        /* Boutons */
-        .btn-primary { width: 100%; padding: 13px; background: var(--primary-green); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 6px; }
-        .btn-primary:hover { background: var(--accent-green); }
-        .btn-danger { padding: 11px; background: #d32f2f; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-secondary { padding: 11px; background: #eee; color: #333; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-copy { padding: 11px; background: var(--primary-green); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+        /* ── BOUTONS ── */
+        .btn-primary {
+            width: 100%; padding: 14px; border: none; border-radius: var(--r1);
+            background: linear-gradient(135deg, var(--g800) 0%, var(--g700) 100%);
+            color: white; font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif;
+            cursor: pointer; margin-top: 8px; letter-spacing: 0.1px;
+            box-shadow: 0 4px 14px rgba(46,125,50,0.38);
+            transition: transform 0.12s, box-shadow 0.12s;
+        }
+        .btn-primary:active { transform: scale(0.97); box-shadow: 0 2px 6px rgba(46,125,50,0.25); }
+        .btn-danger { padding: 13px; background: #e53935; color: white; border: none; border-radius: var(--r1); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; flex: 1; transition: transform 0.12s; }
+        .btn-danger:active { transform: scale(0.97); }
+        .btn-secondary { padding: 13px; background: var(--bg); color: var(--text2); border: 1.5px solid var(--border); border-radius: var(--r1); font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; flex: 1; }
+        .btn-copy { padding: 13px; background: var(--g100); color: var(--g800); border: none; border-radius: var(--r1); font-size: 15px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; flex: 1; }
+        .btn-row { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-blue { background: linear-gradient(135deg, #1565c0, #1976d2); box-shadow: 0 4px 14px rgba(21,101,192,0.35); }
 
-        /* Tabs scanner */
-        .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tab-btn { flex: 1; padding: 10px; border: 2px solid var(--light-green); background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-dark); }
-        .tab-btn.active { background: var(--primary-green); color: white; border-color: var(--primary-green); }
-        .scan-hint { font-size: 13px; color: #888; text-align: center; margin-top: 8px; }
-        .scan-detected { background: var(--light-green); padding: 10px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: var(--text-dark); }
+        /* ── TABS ── */
+        .tabs { display: flex; gap: 5px; margin-bottom: 16px; background: var(--bg); padding: 4px; border-radius: var(--r1); }
+        .tab-btn { flex: 1; padding: 9px; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; color: var(--text2); transition: all 0.18s; }
+        .tab-btn.active { background: var(--surface); color: var(--g800); box-shadow: var(--sh1); }
+        .scan-hint { font-size: 12px; color: var(--text3); text-align: center; margin-top: 8px; }
+        .scan-detected { background: var(--g50); border: 1px solid var(--g200); padding: 9px 12px; border-radius: var(--r1); margin-bottom: 12px; font-size: 13px; color: var(--g800); font-weight: 500; }
 
-        /* Buffer */
-        #jsonOutput { background: #1e1e1e; color: #a8d8a8; font-family: monospace; font-size: 13px; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; min-height: 80px; max-height: 40vh; overflow-y: auto; margin-bottom: 12px; }
-        .buffer-count { text-align: center; font-size: 13px; color: #888; margin-bottom: 10px; }
-        .btn-open-buffer { position: fixed; bottom: 25px; right: 95px; background: #1565c0; color: white; border: none; border-radius: 50px; padding: 10px 16px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 500; display: none; }
+        /* ── BUFFER ── */
+        #jsonOutput { background: #161e17; color: #7ec882; font-family: 'Menlo', 'Consolas', monospace; font-size: 12px; padding: 14px; border-radius: var(--r1); white-space: pre-wrap; word-break: break-all; min-height: 70px; max-height: 35vh; overflow-y: auto; margin-bottom: 12px; line-height: 1.65; }
+        .buffer-count { text-align: center; font-size: 12px; color: var(--text3); font-weight: 600; letter-spacing: 0.4px; margin-bottom: 12px; }
 
-        /* Récap publish */
+        /* ── RECAP PUBLISH ── */
         .recap-section { margin-bottom: 12px; }
-        .recap-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px; padding: 4px 8px; border-radius: 6px; }
-        .recap-section-title.add { background: #e8f5e9; color: #2e7d32; }
-        .recap-section-title.edit { background: #e3f2fd; color: #1565c0; }
-        .recap-section-title.del { background: #ffebee; color: #d32f2f; }
-        .recap-list { display: flex; flex-direction: column; gap: 4px; max-height: 30vh; overflow-y: auto; margin-bottom: 8px; }
-        .recap-item { font-size: 13px; padding: 6px 10px; border-radius: 6px; line-height: 1.4; }
-        .recap-item.add { background: #f1f8f1; color: #1b5e20; }
+        .recap-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 6px; }
+        .recap-label.add { background: var(--g100); color: var(--g800); }
+        .recap-label.edit { background: #e3f2fd; color: #1565c0; }
+        .recap-label.del { background: #ffebee; color: #c62828; }
+        .recap-list { display: flex; flex-direction: column; gap: 4px; max-height: 26vh; overflow-y: auto; }
+        .recap-item { font-size: 13px; padding: 7px 11px; border-radius: 8px; line-height: 1.4; }
+        .recap-item.add { background: var(--g50); color: #1b5e20; }
         .recap-item.edit { background: #e8f3fd; color: #0d47a1; }
         .recap-item.del { background: #fff5f5; color: #c62828; }
-        .dup-tag { background: #ffebee; color: #c62828; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
-        .warn-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px; font-size: 13px; color: #5d4037; margin-bottom: 8px; }
-        .push-loading { text-align: center; padding: 20px; font-size: 15px; color: var(--primary-green); }
-        .error-box { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; font-size: 14px; }
-        .success-box { color: #2e7d32; background: #e8f5e9; padding: 15px; border-radius: 8px; font-size: 14px; text-align: center; }
+        .dup-tag { background: #ffebee; color: #c62828; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 5px; font-weight: 700; }
+        .warn-box { background: #fffde7; border: 1px solid #fff176; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: #5d4037; margin: 8px 0; }
+        .push-loading { text-align: center; padding: 22px; font-size: 14px; color: var(--g800); font-weight: 500; }
+        .error-box { color: #c62828; background: #ffebee; padding: 13px; border-radius: 8px; font-size: 13px; }
 
-        /* Paramètres */
-        .settings-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.6; }
-        .settings-info a { color: var(--primary-green); }
+        /* ── PARAMÈTRES ── */
+        .settings-info { background: #fffde7; border: 1px solid #fff176; border-radius: var(--r1); padding: 11px 13px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.6; }
+        .settings-info a { color: var(--g800); font-weight: 600; }
+        .settings-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0 14px; }
+        .settings-section { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
 
-        /* FAB */
-        .fab { position: fixed; bottom: 25px; right: 25px; width: 58px; height: 58px; border-radius: 50%; background: var(--primary-green); color: white; font-size: 32px; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 500; transition: background 0.2s; user-select: none; -webkit-user-select: none; }
-        .fab:hover { background: var(--accent-green); }
-        .fab.long-press { background: #546e7a; transform: scale(1.1); }
+        /* ── BOUTON BUFFER FLOTTANT ── */
+        .btn-open-buffer {
+            position: fixed; bottom: 30px; right: 102px;
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+            color: white; border: none; border-radius: 50px;
+            padding: 12px 18px; font-size: 13px; font-weight: 700; font-family: 'Inter', sans-serif;
+            cursor: pointer; box-shadow: 0 4px 16px rgba(21,101,192,0.4); z-index: 500; display: none;
+        }
 
-        /* Toast */
-        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
-        .toast.show { opacity: 1; }
+        /* ── FAB ── */
+        .fab {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 62px; height: 62px; border-radius: 50%;
+            background: linear-gradient(145deg, var(--g700), var(--g900));
+            color: white; font-size: 30px; border: none; cursor: pointer;
+            box-shadow: 0 6px 22px rgba(46,125,50,0.5);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 500; user-select: none; -webkit-user-select: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .fab:active { transform: scale(0.91); }
+        .fab.long-press { background: linear-gradient(145deg, #455a64, #263238); box-shadow: 0 6px 22px rgba(0,0,0,0.35); }
 
-        /* PWA */
-        #installBtn { display: none; background: var(--accent-green); color: white; border: none; padding: 10px; border-radius: 8px; margin-bottom: 15px; width: 100%; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        #iosBanner { display: none; background: var(--light-green); border: 1px solid var(--accent-green); border-radius: 8px; padding: 12px 15px; margin-bottom: 15px; font-size: 0.9rem; text-align: center; }
+        /* ── BOUTON REFRESH ── */
+        .btn-refresh {
+            position: fixed; bottom: 30px; left: 30px;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--surface); color: var(--text2);
+            border: 1.5px solid var(--border); cursor: pointer;
+            box-shadow: var(--sh2); display: flex; align-items: center; justify-content: center;
+            font-size: 20px; z-index: 500; transition: transform 0.15s;
+            user-select: none; -webkit-user-select: none;
+        }
+        .btn-refresh:active { transform: scale(0.9) rotate(180deg); }
+        /* Badge point rouge */
+        .btn-refresh .badge { position: absolute; top: -3px; right: -3px; width: 12px; height: 12px; background: #e53935; border-radius: 50%; border: 2px solid var(--bg); display: none; }
+        .btn-refresh-wrapper { position: fixed; bottom: 30px; left: 30px; z-index: 500; }
+        .badge-dot { position: absolute; top: -2px; right: -2px; width: 12px; height: 12px; background: #e53935; border-radius: 50%; border: 2px solid var(--bg); display: none; pointer-events: none; }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed; bottom: 106px; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: rgba(20,35,21,0.93); color: white;
+            padding: 11px 22px; border-radius: 50px;
+            font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;
+            z-index: 9999; opacity: 0; transition: opacity 0.22s, transform 0.22s;
+            pointer-events: none; white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); backdrop-filter: blur(10px);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── PWA ── */
+        #installBtn { display: none; background: linear-gradient(135deg, var(--g800), var(--g700)); color: white; border: none; padding: 13px; border-radius: var(--r1); margin-bottom: 14px; width: 100%; font-weight: 700; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 12px rgba(46,125,50,0.3); font-family: 'Inter', sans-serif; }
+        #iosBanner { display: none; background: var(--g50); border: 1px solid var(--g200); border-radius: var(--r1); padding: 11px 14px; margin-bottom: 14px; font-size: 0.86rem; text-align: center; color: var(--text2); }
+
+        /* ── EMPTY STATE ── */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text3); }
+        .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; font-weight: 500; }
     </style>
 </head>
 <body>
 
-<header><h1>🥦 Rayon Fruits & Légumes</h1></header>
+<header>
+    <div class="hdr-top">
+        <span class="hdr-emoji">🥦</span>
+        <h1>Rayon Fruits & Légumes</h1>
+    </div>
+    <div class="hdr-search">
+        <span class="hdr-search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+        <button class="hdr-clear" id="clearSearch">✕</button>
+    </div>
+</header>
+
+<div class="filters" id="filterChips">
+    <button class="filter-chip active" data-cat="" onclick="setFilter(this,'')">Tous</button>
+    <button class="filter-chip" data-cat="Fruits" onclick="setFilter(this,'Fruits')">🍎 Fruits</button>
+    <button class="filter-chip" data-cat="Légumes" onclick="setFilter(this,'Légumes')">🥬 Légumes</button>
+    <button class="filter-chip" data-cat="Autres" onclick="setFilter(this,'Autres')">🌿 Autres</button>
+</div>
 
 <div class="container">
     <button id="installBtn">📲 Installer l'application</button>
     <div id="iosBanner">Pour installer sur iPhone : appuyez sur <strong>⎙</strong> puis <strong>« Sur l'écran d'accueil »</strong></div>
-    <div class="search-controls">
-        <div class="search-wrapper">
-            <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-            <button class="clear-search" id="clearSearch">✕</button>
-        </div>
-        <select id="categoryFilter">
-            <option value="">Toutes les catégories</option>
-            <option value="Fruits">Fruits</option>
-            <option value="Légumes">Légumes</option>
-            <option value="Autres">Autres</option>
-        </select>
+    <div class="list-header">
+        <span class="list-title" id="productCount"></span>
     </div>
     <div id="productList" class="product-list"></div>
 </div>
 
 <!-- Modal code-barres -->
 <div id="barcodeModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2 id="modalProductName"></h2>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeModal()">✕</span>
+        <p class="modal-title" id="modalProductName"></p>
         <div id="modalCodeDisplay" class="big-code"></div>
         <svg id="barcode"></svg>
     </div>
@@ -152,64 +283,65 @@
 
 <!-- Modal scanner / ajout -->
 <div id="scanModal" class="modal">
-    <div class="modal-content left">
-        <span class="close-btn" onclick="closeScanModal()">&times;</span>
-        <h2 class="modal-title">➕ Ajouter un produit</h2>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeScanModal()">✕</span>
+        <p class="modal-title">➕ Ajouter un produit</p>
         <div class="tabs">
             <button class="tab-btn active" id="tabBtnScan" onclick="switchTab('scan')">📷 Scanner</button>
             <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">⌨️ Manuel</button>
         </div>
         <div id="tabScan"><div id="scannerView"></div><p class="scan-hint">Pointez la caméra vers le code-barres</p></div>
         <div id="tabManual" style="display:none"></div>
-        <div id="productForm" style="display:none;margin-top:12px">
+        <div id="productForm" style="display:none;margin-top:10px">
             <div class="scan-detected">Code détecté — modifiez si besoin</div>
             <div class="form-group"><label>Code produit</label><input type="text" id="inputCode" placeholder="Ex: 3283440020129"></div>
             <div class="form-group"><label>Nom du produit</label><input type="text" id="inputNom" placeholder="Ex: Avocat Hass x2"></div>
-            <div class="form-group">
-                <label>Catégorie</label>
-                <select id="inputCat"><option value="Fruits">Fruits</option><option value="Légumes">Légumes</option><option value="Autres">Autres</option></select>
+            <div class="form-group"><label>Catégorie</label>
+                <select id="inputCat"><option value="Fruits">🍎 Fruits</option><option value="Légumes">🥬 Légumes</option><option value="Autres">🌿 Autres</option></select>
             </div>
             <button class="btn-primary" onclick="addToBuffer()">✅ Ajouter au buffer</button>
         </div>
     </div>
 </div>
 
-<!-- Modal édition produit -->
+<!-- Modal édition -->
 <div id="editModal" class="modal">
-    <div class="modal-content left">
-        <span class="close-btn" onclick="closeEditModal()">&times;</span>
-        <h2 class="modal-title">✏️ Modifier le produit</h2>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeEditModal()">✕</span>
+        <p class="modal-title">✏️ Modifier le produit</p>
         <input type="hidden" id="editOriginalCode">
         <div class="form-group"><label>Code produit</label><input type="text" id="editCode"></div>
         <div class="form-group"><label>Nom du produit</label><input type="text" id="editNom"></div>
-        <div class="form-group">
-            <label>Catégorie</label>
-            <select id="editCat"><option value="Fruits">Fruits</option><option value="Légumes">Légumes</option><option value="Autres">Autres</option></select>
+        <div class="form-group"><label>Catégorie</label>
+            <select id="editCat"><option value="Fruits">🍎 Fruits</option><option value="Légumes">🥬 Légumes</option><option value="Autres">🌿 Autres</option></select>
         </div>
-        <button class="btn-primary" onclick="confirmEdit()">✅ Enregistrer la modification</button>
+        <button class="btn-primary" onclick="confirmEdit()">✅ Enregistrer</button>
     </div>
 </div>
 
-<!-- Modal confirmation suppression -->
+<!-- Modal suppression -->
 <div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeDeleteModal()">&times;</span>
-        <h2 class="modal-title">🗑️ Supprimer</h2>
-        <p id="deleteProductName" style="font-size:1.1rem;font-weight:bold;margin:16px 0 8px"></p>
-        <p style="font-size:14px;color:#888;margin:0 0 20px">Cette suppression sera appliquée lors de la prochaine publication sur GitHub.</p>
+    <div class="modal-sheet center">
+        <span class="close-btn" onclick="closeDeleteModal()">✕</span>
+        <p class="modal-title" style="text-align:center">🗑️ Supprimer</p>
+        <p id="deleteProductName" style="font-size:1rem;font-weight:600;text-align:center;margin:0 0 8px;color:var(--text1)"></p>
+        <p style="font-size:13px;color:var(--text3);text-align:center;margin:0 0 20px;line-height:1.5">La suppression sera appliquée lors de la prochaine publication.</p>
         <div class="btn-row">
             <button class="btn-secondary" onclick="closeDeleteModal()">Annuler</button>
-            <button class="btn-danger" onclick="confirmDelete()">🗑️ Supprimer</button>
+            <button class="btn-danger" onclick="confirmDelete()">Supprimer</button>
         </div>
     </div>
 </div>
 
-<!-- Modal buffer / publish -->
+<!-- Modal buffer -->
 <div id="bufferModal" class="modal">
-    <div class="modal-content left">
-        <span class="close-btn" onclick="closeBufferModal()">&times;</span>
-        <h2 class="modal-title">📋 File de modifications</h2>
-        <p class="buffer-count" id="bufferCount">Aucune modification en attente</p>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeBufferModal()">✕</span>
+        <p class="modal-title">📋 File de modifications</p>
+        <p class="buffer-count" id="bufferCount">Aucune modification</p>
         <div id="jsonOutput">Aucune modification pour l'instant.</div>
         <div class="btn-row">
             <button class="btn-copy" onclick="copyBuffer()">📋 Copier</button>
@@ -221,45 +353,44 @@
 
 <!-- Modal confirmation publish -->
 <div id="confirmModal" class="modal">
-    <div class="modal-content left">
-        <span class="close-btn" onclick="closeConfirmModal()">&times;</span>
-        <h2 class="modal-title">🚀 Publier sur GitHub</h2>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeConfirmModal()">✕</span>
+        <p class="modal-title">🚀 Publier sur GitHub</p>
         <div id="confirmContent"></div>
     </div>
 </div>
 
 <!-- Modal paramètres -->
 <div id="settingsModal" class="modal">
-    <div class="modal-content left">
-        <span class="close-btn" onclick="closeSettings()">&times;</span>
-        <h2 class="modal-title">⚙️ Paramètres GitHub</h2>
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closeSettings()">✕</span>
+        <p class="modal-title">⚙️ Paramètres</p>
         <div class="settings-info">
-            🔑 Votre token est stocké <strong>uniquement sur ce téléphone</strong>.<br><br>
-            Créer un token : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
-            Cochez <strong>repo</strong> → No expiration → Générer.
+            🔑 Token stocké <strong>uniquement sur ce téléphone</strong>.<br>
+            Créer : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a> → cochez <strong>repo</strong>.
         </div>
         <div class="form-group"><label>Token GitHub</label><input type="password" id="inputToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"></div>
         <div class="form-group"><label>Propriétaire du repo</label><input type="text" id="inputOwner" placeholder="jimisow"></div>
         <div class="form-group"><label>Nom du repo</label><input type="text" id="inputRepo" placeholder="rayon-fl"></div>
         <div class="form-group"><label>Branche</label><input type="text" id="inputBranch" placeholder="main"></div>
-        <div style="border-top: 1px solid #eee; margin: 16px 0 14px; padding-top: 14px;">
-            <p style="margin: 0 0 10px; font-size: 13px; font-weight: 600; color: #888;">FORCER LA MISE À JOUR</p>
-            <p style="margin: 0 0 12px; font-size: 13px; color: #888; line-height: 1.5;">L'app ne montre pas les dernières modifications ? Appuyez ici pour vider le cache et recharger.</p>
-            <button class="btn-primary" style="background:#1565c0;" onclick="forceRefresh()">🔄 Vider le cache et recharger</button>
-        </div>
         <button class="btn-primary" onclick="saveSettings()">💾 Enregistrer</button>
+        <hr class="settings-divider">
+        <p class="settings-section">Mise à jour du cache</p>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">L'app n'affiche pas les dernières modifications ? Videz le cache ici.</p>
+        <button class="btn-primary btn-blue" onclick="forceRefresh()">🔄 Vider le cache et recharger</button>
     </div>
 </div>
 
 <!-- Bouton buffer flottant -->
 <button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Modifications (0)</button>
 
-<!-- Bouton refresh flottant -->
-<button id="refreshBtn" onclick="forceRefresh()" title="Vider le cache et recharger"
-    style="position:fixed;bottom:25px;left:25px;width:42px;height:42px;border-radius:50%;
-    background:#546e7a;color:white;font-size:22px;border:none;cursor:pointer;
-    box-shadow:0 4px 12px rgba(0,0,0,0.3);display:flex;align-items:center;
-    justify-content:center;z-index:500;">&#x267B;</button>
+<!-- Bouton refresh avec badge -->
+<div class="btn-refresh-wrapper" id="refreshWrapper">
+    <button class="btn-refresh" onclick="forceRefresh()" title="Vider le cache">&#x267B;</button>
+    <div class="badge-dot" id="badgeDot"></div>
+</div>
 
 <!-- FAB -->
 <button class="fab" id="fabBtn">+</button>
@@ -268,12 +399,18 @@
 
 <script>
 let allProducts = [];
-// File unifiée : { type: 'add'|'edit'|'delete', data: {...}, originalCode: '...' }
 let modifications = JSON.parse(localStorage.getItem('modifications') || '[]');
 let currentSwipeCard = null;
 let scanner = null;
 let scannerStarted = false;
 let pendingDeleteCode = null;
+let currentCatFilter = '';
+
+// ===== BADGE POINT ROUGE =====
+function updateBadge() {
+    const dot = document.getElementById('badgeDot');
+    if (dot) dot.style.display = modifications.length > 0 ? 'block' : 'none';
+}
 
 // ===== PRODUITS =====
 async function loadProducts() {
@@ -283,54 +420,64 @@ async function loadProducts() {
         allProducts = await res.json();
         displayProducts(allProducts);
     } catch(e) {
-        const msg = window.location.protocol === 'file:'
-            ? '<strong>Attention :</strong> Utilisez un serveur local, pas file://.'
-            : 'Erreur de chargement.<br><small>' + e.message + '</small>';
         document.getElementById('productList').innerHTML =
-            '<div style="text-align:center;padding:20px;color:#d32f2f;background:#ffebee;border-radius:8px">' + msg + '</div>';
+            '<div style="text-align:center;padding:20px;color:#c62828;background:#ffebee;border-radius:12px;font-size:14px">' +
+            (window.location.protocol === 'file:' ? '⚠️ Utilisez un serveur local, pas file://.' : '⚠️ Erreur : ' + e.message) + '</div>';
     }
 }
 
+function catKey(cat) { return cat === 'Fruits' ? 'fruits' : cat === 'Légumes' ? 'legumes' : 'autres'; }
+function catEmoji(cat) { return cat === 'Fruits' ? '🍎' : cat === 'Légumes' ? '🥬' : '🌿'; }
+
 function displayProducts(products) {
     const list = document.getElementById('productList');
+    const countEl = document.getElementById('productCount');
     list.innerHTML = '';
-    if (!products.length) {
-        list.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Aucun produit trouvé</div>';
+
+    const s = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = products.filter(function(p) {
+        return (p.nom.toLowerCase().includes(s) || p.code.includes(s)) &&
+               (currentCatFilter === '' || p.cat === currentCatFilter);
+    });
+
+    if (countEl) countEl.textContent = filtered.length + ' produit' + (filtered.length > 1 ? 's' : '');
+
+    if (!filtered.length) {
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><p>Aucun produit trouvé</p></div>';
         return;
     }
-    products.slice().sort((a,b) => a.nom.localeCompare(b.nom)).forEach(p => {
+
+    filtered.slice().sort(function(a,b){ return a.nom.localeCompare(b.nom); }).forEach(function(p) {
+        const ck = catKey(p.cat);
+        const ce = catEmoji(p.cat);
+
         const wrapper = document.createElement('div');
         wrapper.className = 'swipe-wrapper';
 
         const actions = document.createElement('div');
         actions.className = 'swipe-actions';
         actions.innerHTML =
-            '<button class="swipe-btn edit" onclick="openEditModal(\'' + escapeAttr(p.code) + '\')" aria-label="Modifier"><span>✏️</span>Modifier</button>' +
-            '<button class="swipe-btn delete" onclick="openDeleteModal(\'' + escapeAttr(p.code) + '\')" aria-label="Supprimer"><span>🗑️</span>Supprimer</button>';
+            '<button class="swipe-btn edit" onclick="openEditModal(\'' + escapeAttr(p.code) + '\')"><span>✏️</span>Modifier</button>' +
+            '<button class="swipe-btn delete" onclick="openDeleteModal(\'' + escapeAttr(p.code) + '\')"><span>🗑️</span>Supprimer</button>';
 
         const card = document.createElement('div');
         card.className = 'product-card';
         card.dataset.code = p.code;
         card.innerHTML =
-            '<div class="product-info">' +
-            '<span class="nom">' + escapeHtml(p.nom) + '</span>' +
-            '<span class="cat-tag">' + escapeHtml(p.cat) + '</span>' +
-            '</div><div style="color:#ccc">➔</div>';
+            '<div class="card-left">' +
+            '<div class="cat-icon ' + ck + '">' + ce + '</div>' +
+            '<div><span class="card-nom">' + escapeHtml(p.nom) + '</span>' +
+            '<span class="cat-badge ' + ck + '">' + escapeHtml(p.cat) + '</span></div>' +
+            '</div><span class="card-arrow">›</span>';
 
-        // Clic sur la carte (si pas swipée)
         card.addEventListener('click', function() {
-            if (card.classList.contains('swiped')) {
-                resetSwipe(card); return;
-            }
+            if (card.classList.contains('swiped')) { resetSwipe(card); return; }
             openModal(p);
         });
 
-        // Swipe touch
         let startX = 0, startY = 0, isDragging = false;
         card.addEventListener('touchstart', function(e) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isDragging = false;
+            startX = e.touches[0].clientX; startY = e.touches[0].clientY; isDragging = false;
         }, { passive: true });
         card.addEventListener('touchmove', function(e) {
             const dx = e.touches[0].clientX - startX;
@@ -344,11 +491,8 @@ function displayProducts(products) {
             const dx = e.changedTouches[0].clientX - startX;
             if (dx < -50) {
                 if (currentSwipeCard && currentSwipeCard !== card) resetSwipe(currentSwipeCard);
-                card.classList.add('swiped');
-                currentSwipeCard = card;
-            } else if (dx > 20) {
-                resetSwipe(card);
-            }
+                card.classList.add('swiped'); currentSwipeCard = card;
+            } else if (dx > 20) { resetSwipe(card); }
         });
 
         wrapper.appendChild(actions);
@@ -360,38 +504,37 @@ function displayProducts(products) {
 function resetSwipe(card) {
     if (card) { card.classList.remove('swiped'); if (currentSwipeCard === card) currentSwipeCard = null; }
 }
-
-// Fermer swipe en cliquant ailleurs
 document.addEventListener('click', function(e) {
-    if (currentSwipeCard && !currentSwipeCard.closest('.swipe-wrapper').contains(e.target)) {
-        resetSwipe(currentSwipeCard);
-    }
+    if (currentSwipeCard && !currentSwipeCard.closest('.swipe-wrapper').contains(e.target)) resetSwipe(currentSwipeCard);
 });
 
 function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escapeAttr(s) { return String(s).replace(/'/g,"\\'"); }
 
-function filterProducts() {
-    const s = document.getElementById('searchInput').value.toLowerCase();
-    const c = document.getElementById('categoryFilter').value;
-    document.getElementById('clearSearch').style.display = s ? 'block' : 'none';
-    displayProducts(allProducts.filter(p =>
-        (p.nom.toLowerCase().includes(s) || p.code.includes(s)) && (c === '' || p.cat === c)
-    ));
+// ===== FILTRES =====
+function setFilter(el, cat) {
+    currentCatFilter = cat;
+    document.querySelectorAll('.filter-chip').forEach(function(c){ c.classList.remove('active'); });
+    el.classList.add('active');
+    displayProducts(allProducts);
 }
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    const s = this.value;
+    document.getElementById('clearSearch').style.display = s ? 'flex' : 'none';
+    displayProducts(allProducts);
+});
 document.getElementById('clearSearch').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('clearSearch').style.display = 'none';
-    filterProducts();
+    this.style.display = 'none';
+    displayProducts(allProducts);
 });
-document.getElementById('searchInput').addEventListener('input', filterProducts);
-document.getElementById('categoryFilter').addEventListener('change', filterProducts);
 
 // ===== MODAL BARCODE =====
 function openModal(product) {
     document.getElementById('modalProductName').textContent = product.nom;
     document.getElementById('modalCodeDisplay').textContent = product.code;
-    JsBarcode('#barcode', product.code, { format: 'CODE128', lineColor: '#000', width: 2.5, height: 120, displayValue: false, flat: true });
+    JsBarcode('#barcode', product.code, { format: 'CODE128', lineColor: '#000', width: 2.5, height: 110, displayValue: false, flat: true });
     document.getElementById('barcodeModal').style.display = 'flex';
 }
 function closeModal() { document.getElementById('barcodeModal').style.display = 'none'; }
@@ -413,30 +556,37 @@ function switchTab(tab) {
     document.getElementById('tabManual').style.display = tab === 'manual' ? 'block' : 'none';
     if (tab === 'scan') { startScanner(); } else { stopScanner(); document.getElementById('productForm').style.display = 'block'; }
 }
-
 function startScanner() {
     if (scannerStarted) return;
     if (!scanner) scanner = new Html5Qrcode('scannerView');
-    scanner.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 120 } },
+    scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 110 } },
         function(code) {
             stopScanner();
             document.getElementById('inputCode').value = code;
             document.getElementById('productForm').style.display = 'block';
             switchTab('manual');
             document.getElementById('inputNom').focus();
-        },
-        function() {}
-    ).then(function() { scannerStarted = true; }).catch(function() { switchTab('manual'); });
+        }, function() {}
+    ).then(function(){ scannerStarted = true; }).catch(function(){ switchTab('manual'); });
 }
 function stopScanner() {
-    if (scanner && scannerStarted) {
-        scanner.stop().catch(function(){}).finally(function(){ scannerStarted = false; });
-    }
+    if (scanner && scannerStarted) scanner.stop().catch(function(){}).finally(function(){ scannerStarted = false; });
 }
 
-// ===== AJOUT AU BUFFER =====
+// ===== MODIFICATIONS =====
+function saveModifications() {
+    localStorage.setItem('modifications', JSON.stringify(modifications));
+    updateBufferBtn();
+    renderBuffer();
+    updateBadge();
+}
+function updateBufferBtn() {
+    const btn = document.getElementById('openBufferBtn');
+    btn.style.display = modifications.length > 0 ? 'block' : 'none';
+    btn.textContent = '📋 Modifications (' + modifications.length + ')';
+}
+
+// ===== AJOUT =====
 function addToBuffer() {
     const code = document.getElementById('inputCode').value.trim();
     const nom  = document.getElementById('inputNom').value.trim();
@@ -466,10 +616,7 @@ function confirmEdit() {
     const nom  = document.getElementById('editNom').value.trim();
     const cat  = document.getElementById('editCat').value;
     if (!code || !nom) { showToast('⚠️ Code et nom obligatoires'); return; }
-    // Retirer une éventuelle modif précédente sur ce même produit
-    modifications = modifications.filter(function(m) {
-        return !(m.originalCode === originalCode && m.type === 'edit');
-    });
+    modifications = modifications.filter(function(m){ return !(m.originalCode === originalCode && m.type === 'edit'); });
     modifications.push({ type: 'edit', originalCode: originalCode, data: { nom, code, cat } });
     saveModifications();
     closeEditModal();
@@ -488,17 +635,9 @@ function openDeleteModal(code) {
 function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; pendingDeleteCode = null; }
 function confirmDelete() {
     if (!pendingDeleteCode) return;
-    // Annuler ajout si le produit était dans le buffer add
-    modifications = modifications.filter(function(m) {
-        return !(m.type === 'add' && m.data.code === pendingDeleteCode);
-    });
-    // Retirer modif précédente sur ce produit
-    modifications = modifications.filter(function(m) {
-        return !(m.originalCode === pendingDeleteCode && m.type === 'edit');
-    });
-    // Ajouter suppression seulement si c'est un produit existant (pas juste un ajout)
-    const existsInBase = allProducts.some(function(p){ return p.code === pendingDeleteCode; });
-    if (existsInBase) {
+    modifications = modifications.filter(function(m){ return !(m.type === 'add' && m.data.code === pendingDeleteCode); });
+    modifications = modifications.filter(function(m){ return !(m.originalCode === pendingDeleteCode && m.type === 'edit'); });
+    if (allProducts.some(function(p){ return p.code === pendingDeleteCode; })) {
         modifications.push({ type: 'delete', originalCode: pendingDeleteCode });
     }
     saveModifications();
@@ -506,71 +645,31 @@ function confirmDelete() {
     showToast('🗑️ Suppression enregistrée');
 }
 
-// ===== FILE DE MODIFICATIONS =====
-function saveModifications() {
-    localStorage.setItem('modifications', JSON.stringify(modifications));
-    updateBufferBtn();
-    renderBuffer();
-}
-
-function updateBufferBtn() {
-    const btn = document.getElementById('openBufferBtn');
-    const total = modifications.length;
-    btn.style.display = total > 0 ? 'block' : 'none';
-    btn.textContent = '📋 Modifications (' + total + ')';
-}
-
+// ===== BUFFER =====
 function openBufferModal() { renderBuffer(); document.getElementById('bufferModal').style.display = 'flex'; }
 function closeBufferModal() { document.getElementById('bufferModal').style.display = 'none'; }
-
 function renderBuffer() {
     const adds  = modifications.filter(function(m){ return m.type === 'add'; });
     const edits = modifications.filter(function(m){ return m.type === 'edit'; });
     const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
-    const total = modifications.length;
-
-    document.getElementById('bufferCount').textContent = total + ' modification(s) en attente';
-
-    if (!total) {
-        document.getElementById('jsonOutput').textContent = 'Aucune modification pour l\'instant.';
-        return;
-    }
-
+    document.getElementById('bufferCount').textContent = modifications.length + ' modification(s) en attente';
+    if (!modifications.length) { document.getElementById('jsonOutput').textContent = 'Aucune modification pour l\'instant.'; return; }
     let lines = [];
-    if (adds.length)  lines.push('── AJOUTS (' + adds.length + ') ──');
-    adds.forEach(function(m) {
-        lines.push('+ ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat);
-    });
-    if (edits.length) lines.push('── MODIFICATIONS (' + edits.length + ') ──');
-    edits.forEach(function(m) {
-        lines.push('~ [' + m.originalCode + '] → ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat);
-    });
-    if (dels.length)  lines.push('── SUPPRESSIONS (' + dels.length + ') ──');
-    dels.forEach(function(m) {
-        const p = allProducts.find(function(x){ return x.code === m.originalCode; });
-        lines.push('- ' + (p ? p.nom : m.originalCode));
-    });
+    if (adds.length)  { lines.push('── AJOUTS (' + adds.length + ') ──'); adds.forEach(function(m){ lines.push('+ ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat); }); }
+    if (edits.length) { lines.push('── MODIFICATIONS (' + edits.length + ') ──'); edits.forEach(function(m){ lines.push('~ [' + m.originalCode + '] → ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat); }); }
+    if (dels.length)  { lines.push('── SUPPRESSIONS (' + dels.length + ') ──'); dels.forEach(function(m){ const p = allProducts.find(function(x){ return x.code === m.originalCode; }); lines.push('- ' + (p ? p.nom : m.originalCode)); }); }
     document.getElementById('jsonOutput').textContent = lines.join('\n');
 }
-
 function copyBuffer() {
     if (!modifications.length) { showToast('Aucune modification !'); return; }
-    const el = document.getElementById('jsonOutput');
-    navigator.clipboard.writeText(el.textContent)
-        .then(function(){ showToast('✅ Copié !'); })
-        .catch(function() {
-            const ta = document.createElement('textarea');
-            ta.value = el.textContent; document.body.appendChild(ta); ta.select();
-            document.execCommand('copy'); document.body.removeChild(ta);
-            showToast('✅ Copié !');
-        });
+    const text = document.getElementById('jsonOutput').textContent;
+    navigator.clipboard.writeText(text).then(function(){ showToast('✅ Copié !'); }).catch(function(){
+        const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('✅ Copié !');
+    });
 }
-
 function clearBuffer() {
     if (!confirm('Effacer toutes les modifications ?')) return;
-    modifications = [];
-    saveModifications();
-    showToast('🗑️ File effacée');
+    modifications = []; saveModifications(); showToast('🗑️ File effacée');
 }
 
 // ===== PARAMÈTRES =====
@@ -587,104 +686,68 @@ function saveSettings() {
     localStorage.setItem('gh_owner',  document.getElementById('inputOwner').value.trim());
     localStorage.setItem('gh_repo',   document.getElementById('inputRepo').value.trim());
     localStorage.setItem('gh_branch', document.getElementById('inputBranch').value.trim() || 'main');
+    closeSettings(); showToast('✅ Paramètres enregistrés');
+}
+
+// ===== REFRESH =====
+async function forceRefresh() {
     closeSettings();
-    showToast('✅ Paramètres enregistrés');
+    showToast('🔄 Vidage du cache...');
+    try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+        if ('serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(function(r){ return r.unregister(); }));
+        }
+        window.location.reload(true);
+    } catch(e) { showToast('❌ Erreur : ' + e.message); }
 }
 
-// ===== GITHUB API =====
-function toB64(str) {
-    const bytes = new TextEncoder().encode(str);
-    let binary = '';
-    bytes.forEach(function(b){ binary += String.fromCharCode(b); });
-    return btoa(binary);
-}
-function fromB64(b64) {
-    const binary = atob(b64.replace(/\n/g, ''));
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return new TextDecoder('utf-8').decode(bytes);
-}
-function getNextSwVersion(swContent) {
-    const match = swContent.match(/rayon-frais-v(\d+)/);
-    return match ? 'rayon-frais-v' + (parseInt(match[1]) + 1) : 'rayon-frais-v2';
-}
-
+// ===== GITHUB =====
+function toB64(str) { const b = new TextEncoder().encode(str); let s = ''; b.forEach(function(x){ s += String.fromCharCode(x); }); return btoa(s); }
+function fromB64(b64) { const bin = atob(b64.replace(/\n/g,'')); const b = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i); return new TextDecoder('utf-8').decode(b); }
+function getNextSwVersion(c) { const m = c.match(/rayon-frais-v(\d+)/); return m ? 'rayon-frais-v'+(parseInt(m[1])+1) : 'rayon-frais-v2'; }
 async function ghGet(path) {
-    const token  = localStorage.getItem('gh_token');
-    const owner  = localStorage.getItem('gh_owner');
-    const repo   = localStorage.getItem('gh_repo');
-    const branch = localStorage.getItem('gh_branch') || 'main';
-    const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path + '?ref=' + branch, {
-        headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
-    });
-    if (!res.ok) throw new Error('GitHub ' + res.status + ': ' + res.statusText);
+    const t=localStorage.getItem('gh_token'), o=localStorage.getItem('gh_owner'), r=localStorage.getItem('gh_repo'), b=localStorage.getItem('gh_branch')||'main';
+    const res = await fetch('https://api.github.com/repos/'+o+'/'+r+'/contents/'+path+'?ref='+b, { headers:{'Authorization':'Bearer '+t,'Accept':'application/vnd.github+json'} });
+    if (!res.ok) throw new Error('GitHub '+res.status);
     return res.json();
 }
-async function ghPut(path, message, contentB64, sha) {
-    const token  = localStorage.getItem('gh_token');
-    const owner  = localStorage.getItem('gh_owner');
-    const repo   = localStorage.getItem('gh_repo');
-    const branch = localStorage.getItem('gh_branch') || 'main';
-    const body = { message, content: contentB64, branch };
+async function ghPut(path, msg, content, sha) {
+    const t=localStorage.getItem('gh_token'), o=localStorage.getItem('gh_owner'), r=localStorage.getItem('gh_repo'), b=localStorage.getItem('gh_branch')||'main';
+    const body = { message:msg, content, branch:b };
     if (sha) body.sha = sha;
-    const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path, {
-        method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-    if (!res.ok) { const err = await res.json(); throw new Error(err.message || res.statusText); }
+    const res = await fetch('https://api.github.com/repos/'+o+'/'+r+'/contents/'+path, { method:'PUT', headers:{'Authorization':'Bearer '+t,'Accept':'application/vnd.github+json','Content-Type':'application/json'}, body:JSON.stringify(body) });
+    if (!res.ok) { const e=await res.json(); throw new Error(e.message||res.statusText); }
     return res.json();
 }
 
-// ===== CONFIRMATION PUBLISH =====
+// ===== CONFIRM PUBLISH =====
 function openConfirmModal() {
-    if (!localStorage.getItem('gh_token')) { showToast('⚙️ Configurez d\'abord les paramètres GitHub'); openSettings(); return; }
+    if (!localStorage.getItem('gh_token')) { showToast('⚙️ Configurez d\'abord les paramètres'); openSettings(); return; }
     if (!modifications.length) { showToast('Aucune modification !'); return; }
-
-    const adds  = modifications.filter(function(m){ return m.type === 'add'; });
-    const edits = modifications.filter(function(m){ return m.type === 'edit'; });
-    const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
-    const existingCodes = allProducts.map(function(p){ return p.code; });
-
+    const adds=modifications.filter(function(m){return m.type==='add';}), edits=modifications.filter(function(m){return m.type==='edit';}), dels=modifications.filter(function(m){return m.type==='delete';});
+    const existingCodes = allProducts.map(function(p){return p.code;});
     let html = '';
-
     if (adds.length) {
-        html += '<div class="recap-section"><p class="recap-section-title add">➕ ' + adds.length + ' ajout(s)</p><div class="recap-list">';
-        adds.forEach(function(m) {
-            const dup = existingCodes.includes(m.data.code);
-            html += '<div class="recap-item add"><strong>' + escapeHtml(m.data.nom) + '</strong> (' + escapeHtml(m.data.cat) + ')<br>'
-                  + '<span style="font-family:monospace;font-size:12px">' + escapeHtml(m.data.code) + '</span>'
-                  + (dup ? '<span class="dup-tag">⚠️ doublon</span>' : '') + '</div>';
-        });
+        html += '<div class="recap-section"><span class="recap-label add">➕ '+adds.length+' ajout(s)</span><div class="recap-list">';
+        adds.forEach(function(m){ const dup=existingCodes.includes(m.data.code); html+='<div class="recap-item add"><strong>'+escapeHtml(m.data.nom)+'</strong> ('+escapeHtml(m.data.cat)+')<br><span style="font-family:monospace;font-size:12px">'+escapeHtml(m.data.code)+'</span>'+(dup?'<span class="dup-tag">doublon</span>':'')+'</div>'; });
         html += '</div></div>';
     }
     if (edits.length) {
-        html += '<div class="recap-section"><p class="recap-section-title edit">✏️ ' + edits.length + ' modification(s)</p><div class="recap-list">';
-        edits.forEach(function(m) {
-            const orig = allProducts.find(function(p){ return p.code === m.originalCode; });
-            html += '<div class="recap-item edit">'
-                  + (orig ? '<span style="text-decoration:line-through;color:#888;font-size:12px">' + escapeHtml(orig.nom) + '</span><br>' : '')
-                  + '<strong>' + escapeHtml(m.data.nom) + '</strong> (' + escapeHtml(m.data.cat) + ')<br>'
-                  + '<span style="font-family:monospace;font-size:12px">' + escapeHtml(m.data.code) + '</span></div>';
-        });
+        html += '<div class="recap-section"><span class="recap-label edit">✏️ '+edits.length+' modification(s)</span><div class="recap-list">';
+        edits.forEach(function(m){ const orig=allProducts.find(function(p){return p.code===m.originalCode;}); html+='<div class="recap-item edit">'+(orig?'<span style="text-decoration:line-through;color:#aaa;font-size:12px">'+escapeHtml(orig.nom)+'</span><br>':'')+'<strong>'+escapeHtml(m.data.nom)+'</strong> ('+escapeHtml(m.data.cat)+')</div>'; });
         html += '</div></div>';
     }
     if (dels.length) {
-        html += '<div class="recap-section"><p class="recap-section-title del">🗑️ ' + dels.length + ' suppression(s)</p><div class="recap-list">';
-        dels.forEach(function(m) {
-            const p = allProducts.find(function(x){ return x.code === m.originalCode; });
-            html += '<div class="recap-item del"><strong>' + escapeHtml(p ? p.nom : m.originalCode) + '</strong>'
-                  + (p ? ' (' + escapeHtml(p.cat) + ')' : '') + '</div>';
-        });
+        html += '<div class="recap-section"><span class="recap-label del">🗑️ '+dels.length+' suppression(s)</span><div class="recap-list">';
+        dels.forEach(function(m){ const p=allProducts.find(function(x){return x.code===m.originalCode;}); html+='<div class="recap-item del"><strong>'+escapeHtml(p?p.nom:m.originalCode)+'</strong>'+(p?' ('+escapeHtml(p.cat)+')':'')+'</div>'; });
         html += '</div></div>';
     }
-
-    const dupCount = adds.filter(function(m){ return existingCodes.includes(m.data.code); }).length;
-    if (dupCount) html += '<div class="warn-box">⚠️ ' + dupCount + ' doublon(s) ignoré(s).</div>';
-
-    html += '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Annuler</button>'
-          + '<button class="btn-primary" style="flex:1;margin-top:0" onclick="pushToGitHub()">✅ Confirmer</button></div>';
-
+    const dupCount=adds.filter(function(m){return existingCodes.includes(m.data.code);}).length;
+    if (dupCount) html += '<div class="warn-box">⚠️ '+dupCount+' doublon(s) ignoré(s).</div>';
+    html += '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Annuler</button><button class="btn-primary" style="flex:1;margin-top:0" onclick="pushToGitHub()">✅ Confirmer</button></div>';
     document.getElementById('confirmContent').innerHTML = html;
     closeBufferModal();
     document.getElementById('confirmModal').style.display = 'flex';
@@ -696,91 +759,42 @@ async function pushToGitHub() {
     try {
         const prodFile = await ghGet('produits.json');
         let merged = JSON.parse(fromB64(prodFile.content));
-
-        const adds  = modifications.filter(function(m){ return m.type === 'add'; });
-        const edits = modifications.filter(function(m){ return m.type === 'edit'; });
-        const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
-
-        // 1. Suppressions
-        dels.forEach(function(m) {
-            merged = merged.filter(function(p){ return p.code !== m.originalCode; });
-        });
-
-        // 2. Modifications
-        edits.forEach(function(m) {
-            const idx = merged.findIndex(function(p){ return p.code === m.originalCode; });
-            if (idx !== -1) merged[idx] = m.data;
-        });
-
-        // 3. Ajouts (sans doublons)
-        const existingCodes = merged.map(function(p){ return p.code; });
-        adds.forEach(function(m) {
-            if (!existingCodes.includes(m.data.code)) { merged.push(m.data); existingCodes.push(m.data.code); }
-        });
-
-        // Formatter le JSON
-        const prodJson = '[\n' + merged.map(function(p, i) {
-            return '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < merged.length - 1 ? ',' : '');
-        }).join('\n') + '\n]';
-
-        // 1. produits.json en premier
-        const swFile = await ghGet('sw.js');
-        const swContent = fromB64(swFile.content);
-        const newVersion = getNextSwVersion(swContent);
-        const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
-
-        await ghPut('produits.json', 'Mise a jour produits (' + adds.length + ' ajout(s), ' + edits.length + ' modif(s), ' + dels.length + ' suppression(s))', toB64(prodJson), prodFile.sha);
-        // 2. sw.js ensuite pour invalider le cache
-        await ghPut('sw.js', 'Bump cache ' + newVersion, toB64(newSwContent), swFile.sha);
-
-        // Mettre à jour l'état local
-        allProducts = merged;
-        displayProducts(allProducts);
-        modifications = [];
-        saveModifications();
-        closeConfirmModal();
-        showToast('✅ Publié avec succès !');
+        const adds=modifications.filter(function(m){return m.type==='add';}), edits=modifications.filter(function(m){return m.type==='edit';}), dels=modifications.filter(function(m){return m.type==='delete';});
+        dels.forEach(function(m){ merged=merged.filter(function(p){return p.code!==m.originalCode;}); });
+        edits.forEach(function(m){ const i=merged.findIndex(function(p){return p.code===m.originalCode;}); if(i!==-1) merged[i]=m.data; });
+        const ec=merged.map(function(p){return p.code;});
+        adds.forEach(function(m){ if(!ec.includes(m.data.code)){merged.push(m.data);ec.push(m.data.code);} });
+        const prodJson='[\n'+merged.map(function(p,i){ return '  { "nom": "'+p.nom+'", "code": "'+p.code+'", "cat": "'+p.cat+'" }'+(i<merged.length-1?',':''); }).join('\n')+'\n]';
+        // produits.json en premier, sw.js ensuite
+        await ghPut('produits.json','Mise à jour produits ('+adds.length+' aj, '+edits.length+' mod, '+dels.length+' sup)',toB64(prodJson),prodFile.sha);
+        const swFile=await ghGet('sw.js'), swContent=fromB64(swFile.content), newVer=getNextSwVersion(swContent);
+        await ghPut('sw.js','Bump cache '+newVer,toB64(swContent.replace(/rayon-frais-v\d+/,newVer)),swFile.sha);
+        allProducts=merged; displayProducts(allProducts);
+        modifications=[]; saveModifications();
+        closeConfirmModal(); showToast('✅ Publié avec succès !');
     } catch(e) {
-        document.getElementById('confirmContent').innerHTML =
-            '<div class="error-box">❌ Erreur : ' + e.message + '</div>'
-            + '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Fermer</button></div>';
+        document.getElementById('confirmContent').innerHTML='<div class="error-box">❌ '+e.message+'</div><div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Fermer</button></div>';
     }
 }
 
-// ===== RESET LOCAL =====
-async function forceRefresh() {
-    closeSettings();
-    showToast('🔄 Vidage du cache...');
-    try {
-        // Supprimer tous les caches SW
-        const keys = await caches.keys();
-        await Promise.all(keys.map(function(k){ return caches.delete(k); }));
-        // Désinscrire le SW pour repartir propre
-        if ('serviceWorker' in navigator) {
-            const regs = await navigator.serviceWorker.getRegistrations();
-            await Promise.all(regs.map(function(r){ return r.unregister(); }));
-        }
-        // Recharger la page — le SW se réinstalle avec les fichiers frais depuis GitHub
-        window.location.reload(true);
-    } catch(e) {
-        showToast('❌ Erreur : ' + e.message);
-    }
-}
-
-// ===== FAB =====
-(function() {
+// ===== FAB — appui long = paramètres, clic = scanner =====
+window.addEventListener('DOMContentLoaded', function() {
     const fab = document.getElementById('fabBtn');
     let pressTimer = null;
+    let longPressed = false;
+
     function startPress() {
+        longPressed = false;
         pressTimer = setTimeout(function() {
+            longPressed = true;
             pressTimer = null;
             fab.classList.add('long-press');
-            setTimeout(function(){ fab.classList.remove('long-press'); }, 400);
+            setTimeout(function(){ fab.classList.remove('long-press'); }, 500);
             openSettings();
         }, 800);
     }
     function endPress(doOpen) {
-        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; if (doOpen) openScanModal(); }
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; if (doOpen && !longPressed) openScanModal(); }
     }
     fab.addEventListener('mousedown', startPress);
     fab.addEventListener('mouseup', function(){ endPress(true); });
@@ -788,12 +802,11 @@ async function forceRefresh() {
     fab.addEventListener('touchstart', function(e){ e.preventDefault(); startPress(); }, { passive: false });
     fab.addEventListener('touchend', function(e){ e.preventDefault(); endPress(true); });
     fab.addEventListener('touchmove', function(){ endPress(false); });
-})();
+});
 
 // ===== FERMER MODALS =====
 window.onclick = function(e) {
-    var modals = ['barcodeModal','bufferModal','scanModal','confirmModal','settingsModal','editModal','deleteModal'];
-    modals.forEach(function(id) {
+    ['barcodeModal','bufferModal','scanModal','confirmModal','settingsModal','editModal','deleteModal'].forEach(function(id){
         if (e.target === document.getElementById(id)) document.getElementById(id).style.display = 'none';
     });
 };
@@ -808,45 +821,31 @@ function showToast(msg) {
 // ===== INIT =====
 loadProducts();
 updateBufferBtn();
+updateBadge();
 
 // PWA
 let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
-});
-installBtn.addEventListener('click', async function() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') installBtn.style.display = 'none';
-        deferredPrompt = null;
-    }
-});
-const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-if (isIos && isSafari && !window.navigator.standalone) {
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredPrompt=e; document.getElementById('installBtn').style.display='block'; });
+document.getElementById('installBtn').addEventListener('click', async function(){ if(deferredPrompt){deferredPrompt.prompt(); const{outcome}=await deferredPrompt.userChoice; if(outcome==='accepted') this.style.display='none'; deferredPrompt=null;} });
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) && /^((?!chrome|android).)*safari/i.test(navigator.userAgent) && !window.navigator.standalone)
     document.getElementById('iosBanner').style.display = 'block';
-}
 
 // Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async function() {
         const reg = await navigator.serviceWorker.register('./sw.js');
         reg.update();
-        reg.addEventListener('updatefound', function() {
+        reg.addEventListener('updatefound', function(){
             const nw = reg.installing;
-            nw.addEventListener('statechange', function() {
-                if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            nw.addEventListener('statechange', function(){
+                if (nw.state==='installed' && navigator.serviceWorker.controller) {
                     navigator.serviceWorker.controller.postMessage('skipWaiting');
                     window.location.reload();
                 }
             });
         });
         let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', function() {
-            if (!refreshing) { refreshing = true; window.location.reload(); }
-        });
+        navigator.serviceWorker.addEventListener('controllerchange', function(){ if(!refreshing){refreshing=true;window.location.reload();} });
     });
 }
 </script>
