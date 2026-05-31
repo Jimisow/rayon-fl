@@ -27,5 +27,6 @@
   { "nom": "Persil frise", "code": "90351", "cat": "Autres" },
   { "nom": "Radis botte", "code": "92456", "cat": "Légumes" },
   { "nom": "Salade", "code": "92401", "cat": "Légumes" },
-  { "nom": "Thym", "code": "92424", "cat": "Autres" }
+  { "nom": "Thym", "code": "92424", "cat": "Autres" },
+  { "nom": "L'eau", "code": "123456", "cat": "Autres" }
 ]
