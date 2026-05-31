@@ -427,11 +427,16 @@ async function ghPut(path, message, contentB64, sha) {
 }
 
 function toB64(str) {
-    // Encodage UTF-8 fiable via TextEncoder
     const bytes = new TextEncoder().encode(str);
     let binary = '';
     bytes.forEach(b => binary += String.fromCharCode(b));
     return btoa(binary);
+}
+function fromB64(b64) {
+    const binary = atob(b64.replace(/\n/g, ''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
 }
 
 function getNextSwVersion(swContent) {
@@ -474,13 +479,13 @@ async function pushToGitHub() {
     document.getElementById('confirmContent').innerHTML = '<div class="push-loading">⏳ Publication en cours...</div>';
     try {
         const prodFile = await ghGet('produits.json');
-        const existing = JSON.parse(atob(prodFile.content.replace(/\n/g, '')));
+        const existing = JSON.parse(fromB64(prodFile.content));
         const existingCodes = existing.map(p => p.code);
         const newProds = bufferProducts.filter(p => !existingCodes.includes(p.code));
         const merged = existing.concat(newProds);
 
         const swFile = await ghGet('sw.js');
-        const swContent = atob(swFile.content.replace(/\n/g, ''));
+        const swContent = fromB64(swFile.content);
         const newVersion = getNextSwVersion(swContent);
         const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
 
