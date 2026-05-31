@@ -31,13 +31,20 @@
         .search-wrapper input { width: 100%; padding: 12px 40px 12px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; }
         .search-wrapper input:focus { border-color: var(--accent-green); }
         .clear-search { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 18px; color: #aaa; cursor: pointer; display: none; padding: 4px; line-height: 1; }
-        select { padding: 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; width: 100%; }
+        select { padding: 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 16px; outline: none; width: 100%; background: white; }
         select:focus { border-color: var(--accent-green); }
 
-        /* Produits */
+        /* Produits avec swipe */
         .product-list { display: flex; flex-direction: column; gap: 10px; }
-        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.1s; }
-        .product-card:active { transform: scale(0.98); background: var(--light-green); }
+        .swipe-wrapper { position: relative; overflow: hidden; border-radius: 10px; }
+        .swipe-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 1; }
+        .swipe-btn { width: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; border: none; font-size: 11px; font-weight: 600; color: white; }
+        .swipe-btn.edit { background: #1565c0; }
+        .swipe-btn.delete { background: #d32f2f; border-radius: 0 10px 10px 0; }
+        .swipe-btn span { font-size: 20px; line-height: 1; }
+        .product-card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: transform 0.2s ease; position: relative; z-index: 2; user-select: none; -webkit-user-select: none; }
+        .product-card.swiped { transform: translateX(-120px); }
+        .product-card:active { background-color: var(--light-green); }
         .product-info .nom { font-weight: bold; font-size: 1.1rem; display: block; }
         .product-info .cat-tag { font-size: 0.8rem; color: var(--primary-green); background: var(--light-green); padding: 2px 8px; border-radius: 10px; margin-top: 4px; display: inline-block; }
 
@@ -45,14 +52,15 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; }
         .modal-content.left { text-align: left; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #666; line-height: 1; }
+        .modal-title { text-align: center; color: var(--primary-green); margin-top: 0; font-size: 1.2rem; }
         .big-code { font-size: 2.5rem; font-weight: bold; letter-spacing: 5px; margin: 20px 0; color: #000; }
         #barcode { max-width: 100%; }
 
         /* Formulaires */
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 15px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 2px solid var(--light-green); border-radius: 8px; font-size: 15px; background: white; }
         .form-group input:focus, .form-group select:focus { border-color: var(--accent-green); outline: none; }
 
         /* Boutons */
@@ -68,21 +76,29 @@
         .tab-btn { flex: 1; padding: 10px; border: 2px solid var(--light-green); background: white; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-dark); }
         .tab-btn.active { background: var(--primary-green); color: white; border-color: var(--primary-green); }
         .scan-hint { font-size: 13px; color: #888; text-align: center; margin-top: 8px; }
-        .scan-detected { background: var(--light-green); padding: 10px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
+        .scan-detected { background: var(--light-green); padding: 10px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; color: var(--text-dark); }
 
         /* Buffer */
-        #jsonOutput { background: #1e1e1e; color: #a8d8a8; font-family: monospace; font-size: 13px; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; min-height: 80px; max-height: 45vh; overflow-y: auto; margin-bottom: 12px; }
+        #jsonOutput { background: #1e1e1e; color: #a8d8a8; font-family: monospace; font-size: 13px; padding: 15px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; min-height: 80px; max-height: 40vh; overflow-y: auto; margin-bottom: 12px; }
         .buffer-count { text-align: center; font-size: 13px; color: #888; margin-bottom: 10px; }
         .btn-open-buffer { position: fixed; bottom: 25px; right: 95px; background: #1565c0; color: white; border: none; border-radius: 50px; padding: 10px 16px; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 500; display: none; }
 
-        /* Confirmation push */
-        .confirm-list { background: var(--bg-light); border-radius: 8px; padding: 10px 14px; max-height: 35vh; overflow-y: auto; margin: 12px 0; font-size: 14px; line-height: 2; }
-        .confirm-item { border-bottom: 1px solid #eee; padding: 4px 0; }
-        .confirm-item:last-child { border-bottom: none; }
+        /* Récap publish */
+        .recap-section { margin-bottom: 12px; }
+        .recap-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px; padding: 4px 8px; border-radius: 6px; }
+        .recap-section-title.add { background: #e8f5e9; color: #2e7d32; }
+        .recap-section-title.edit { background: #e3f2fd; color: #1565c0; }
+        .recap-section-title.del { background: #ffebee; color: #d32f2f; }
+        .recap-list { display: flex; flex-direction: column; gap: 4px; max-height: 30vh; overflow-y: auto; margin-bottom: 8px; }
+        .recap-item { font-size: 13px; padding: 6px 10px; border-radius: 6px; line-height: 1.4; }
+        .recap-item.add { background: #f1f8f1; color: #1b5e20; }
+        .recap-item.edit { background: #e8f3fd; color: #0d47a1; }
+        .recap-item.del { background: #fff5f5; color: #c62828; }
         .dup-tag { background: #ffebee; color: #c62828; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 6px; }
         .warn-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 10px; font-size: 13px; color: #5d4037; margin-bottom: 8px; }
         .push-loading { text-align: center; padding: 20px; font-size: 15px; color: var(--primary-green); }
         .error-box { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 8px; font-size: 14px; }
+        .success-box { color: #2e7d32; background: #e8f5e9; padding: 15px; border-radius: 8px; font-size: 14px; text-align: center; }
 
         /* Paramètres */
         .settings-info { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px; font-size: 13px; color: #5d4037; margin-bottom: 16px; line-height: 1.6; }
@@ -109,7 +125,6 @@
 <div class="container">
     <button id="installBtn">📲 Installer l'application</button>
     <div id="iosBanner">Pour installer sur iPhone : appuyez sur <strong>⎙</strong> puis <strong>« Sur l'écran d'accueil »</strong></div>
-
     <div class="search-controls">
         <div class="search-wrapper">
             <input type="text" id="searchInput" placeholder="Rechercher un produit...">
@@ -135,11 +150,11 @@
     </div>
 </div>
 
-<!-- Modal scanner -->
+<!-- Modal scanner / ajout -->
 <div id="scanModal" class="modal">
     <div class="modal-content left">
         <span class="close-btn" onclick="closeScanModal()">&times;</span>
-        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">➕ Ajouter un produit</h2>
+        <h2 class="modal-title">➕ Ajouter un produit</h2>
         <div class="tabs">
             <button class="tab-btn active" id="tabBtnScan" onclick="switchTab('scan')">📷 Scanner</button>
             <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">⌨️ Manuel</button>
@@ -159,13 +174,43 @@
     </div>
 </div>
 
-<!-- Modal buffer -->
+<!-- Modal édition produit -->
+<div id="editModal" class="modal">
+    <div class="modal-content left">
+        <span class="close-btn" onclick="closeEditModal()">&times;</span>
+        <h2 class="modal-title">✏️ Modifier le produit</h2>
+        <input type="hidden" id="editOriginalCode">
+        <div class="form-group"><label>Code produit</label><input type="text" id="editCode"></div>
+        <div class="form-group"><label>Nom du produit</label><input type="text" id="editNom"></div>
+        <div class="form-group">
+            <label>Catégorie</label>
+            <select id="editCat"><option value="Fruits">Fruits</option><option value="Légumes">Légumes</option><option value="Autres">Autres</option></select>
+        </div>
+        <button class="btn-primary" onclick="confirmEdit()">✅ Enregistrer la modification</button>
+    </div>
+</div>
+
+<!-- Modal confirmation suppression -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeDeleteModal()">&times;</span>
+        <h2 class="modal-title">🗑️ Supprimer</h2>
+        <p id="deleteProductName" style="font-size:1.1rem;font-weight:bold;margin:16px 0 8px"></p>
+        <p style="font-size:14px;color:#888;margin:0 0 20px">Cette suppression sera appliquée lors de la prochaine publication sur GitHub.</p>
+        <div class="btn-row">
+            <button class="btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+            <button class="btn-danger" onclick="confirmDelete()">🗑️ Supprimer</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal buffer / publish -->
 <div id="bufferModal" class="modal">
     <div class="modal-content left">
         <span class="close-btn" onclick="closeBufferModal()">&times;</span>
-        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">📋 Buffer produits.json</h2>
-        <p class="buffer-count" id="bufferCount">0 produit(s) en attente</p>
-        <div id="jsonOutput">Aucun produit scanné pour l'instant.</div>
+        <h2 class="modal-title">📋 File de modifications</h2>
+        <p class="buffer-count" id="bufferCount">Aucune modification en attente</p>
+        <div id="jsonOutput">Aucune modification pour l'instant.</div>
         <div class="btn-row">
             <button class="btn-copy" onclick="copyBuffer()">📋 Copier</button>
             <button class="btn-danger" onclick="clearBuffer()">🗑️ Effacer</button>
@@ -174,11 +219,11 @@
     </div>
 </div>
 
-<!-- Modal confirmation push -->
+<!-- Modal confirmation publish -->
 <div id="confirmModal" class="modal">
     <div class="modal-content left">
         <span class="close-btn" onclick="closeConfirmModal()">&times;</span>
-        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">🚀 Publier sur GitHub</h2>
+        <h2 class="modal-title">🚀 Publier sur GitHub</h2>
         <div id="confirmContent"></div>
     </div>
 </div>
@@ -187,7 +232,7 @@
 <div id="settingsModal" class="modal">
     <div class="modal-content left">
         <span class="close-btn" onclick="closeSettings()">&times;</span>
-        <h2 style="text-align:center;color:var(--primary-green);margin-top:0">⚙️ Paramètres GitHub</h2>
+        <h2 class="modal-title">⚙️ Paramètres GitHub</h2>
         <div class="settings-info">
             🔑 Votre token est stocké <strong>uniquement sur ce téléphone</strong>.<br><br>
             Créer un token : <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens</a><br>
@@ -202,7 +247,7 @@
 </div>
 
 <!-- Bouton buffer flottant -->
-<button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Buffer (0)</button>
+<button class="btn-open-buffer" id="openBufferBtn" onclick="openBufferModal()">📋 Modifications (0)</button>
 
 <!-- FAB -->
 <button class="fab" id="fabBtn">+</button>
@@ -211,9 +256,12 @@
 
 <script>
 let allProducts = [];
-let bufferProducts = JSON.parse(localStorage.getItem('bufferProducts') || '[]');
+// File unifiée : { type: 'add'|'edit'|'delete', data: {...}, originalCode: '...' }
+let modifications = JSON.parse(localStorage.getItem('modifications') || '[]');
+let currentSwipeCard = null;
 let scanner = null;
 let scannerStarted = false;
+let pendingDeleteCode = null;
 
 // ===== PRODUITS =====
 async function loadProducts() {
@@ -239,13 +287,77 @@ function displayProducts(products) {
         return;
     }
     products.slice().sort((a,b) => a.nom.localeCompare(b.nom)).forEach(p => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'swipe-wrapper';
+
+        const actions = document.createElement('div');
+        actions.className = 'swipe-actions';
+        actions.innerHTML =
+            '<button class="swipe-btn edit" onclick="openEditModal(\'' + escapeAttr(p.code) + '\')" aria-label="Modifier"><span>✏️</span>Modifier</button>' +
+            '<button class="swipe-btn delete" onclick="openDeleteModal(\'' + escapeAttr(p.code) + '\')" aria-label="Supprimer"><span>🗑️</span>Supprimer</button>';
+
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.innerHTML = '<div class="product-info"><span class="nom">' + p.nom + '</span><span class="cat-tag">' + p.cat + '</span></div><div style="color:#ccc">➔</div>';
-        card.onclick = () => openModal(p);
-        list.appendChild(card);
+        card.dataset.code = p.code;
+        card.innerHTML =
+            '<div class="product-info">' +
+            '<span class="nom">' + escapeHtml(p.nom) + '</span>' +
+            '<span class="cat-tag">' + escapeHtml(p.cat) + '</span>' +
+            '</div><div style="color:#ccc">➔</div>';
+
+        // Clic sur la carte (si pas swipée)
+        card.addEventListener('click', function() {
+            if (card.classList.contains('swiped')) {
+                resetSwipe(card); return;
+            }
+            openModal(p);
+        });
+
+        // Swipe touch
+        let startX = 0, startY = 0, isDragging = false;
+        card.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isDragging = false;
+        }, { passive: true });
+        card.addEventListener('touchmove', function(e) {
+            const dx = e.touches[0].clientX - startX;
+            const dy = e.touches[0].clientY - startY;
+            if (!isDragging && Math.abs(dy) > Math.abs(dx)) return;
+            isDragging = true;
+            if (dx < -10) e.preventDefault();
+        }, { passive: false });
+        card.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            const dx = e.changedTouches[0].clientX - startX;
+            if (dx < -50) {
+                if (currentSwipeCard && currentSwipeCard !== card) resetSwipe(currentSwipeCard);
+                card.classList.add('swiped');
+                currentSwipeCard = card;
+            } else if (dx > 20) {
+                resetSwipe(card);
+            }
+        });
+
+        wrapper.appendChild(actions);
+        wrapper.appendChild(card);
+        list.appendChild(wrapper);
     });
 }
+
+function resetSwipe(card) {
+    if (card) { card.classList.remove('swiped'); if (currentSwipeCard === card) currentSwipeCard = null; }
+}
+
+// Fermer swipe en cliquant ailleurs
+document.addEventListener('click', function(e) {
+    if (currentSwipeCard && !currentSwipeCard.closest('.swipe-wrapper').contains(e.target)) {
+        resetSwipe(currentSwipeCard);
+    }
+});
+
+function escapeHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escapeAttr(s) { return String(s).replace(/'/g,"\\'"); }
 
 function filterProducts() {
     const s = document.getElementById('searchInput').value.toLowerCase();
@@ -255,8 +367,7 @@ function filterProducts() {
         (p.nom.toLowerCase().includes(s) || p.code.includes(s)) && (c === '' || p.cat === c)
     ));
 }
-
-document.getElementById('clearSearch').addEventListener('click', () => {
+document.getElementById('clearSearch').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearch').style.display = 'none';
     filterProducts();
@@ -281,22 +392,14 @@ function openScanModal() {
     document.getElementById('inputNom').value = '';
     switchTab('scan');
 }
-function closeScanModal() {
-    stopScanner();
-    document.getElementById('scanModal').style.display = 'none';
-}
+function closeScanModal() { stopScanner(); document.getElementById('scanModal').style.display = 'none'; }
 
 function switchTab(tab) {
     document.getElementById('tabBtnScan').classList.toggle('active', tab === 'scan');
     document.getElementById('tabBtnManual').classList.toggle('active', tab === 'manual');
     document.getElementById('tabScan').style.display = tab === 'scan' ? 'block' : 'none';
     document.getElementById('tabManual').style.display = tab === 'manual' ? 'block' : 'none';
-    if (tab === 'scan') {
-        startScanner();
-    } else {
-        stopScanner();
-        document.getElementById('productForm').style.display = 'block';
-    }
+    if (tab === 'scan') { startScanner(); } else { stopScanner(); document.getElementById('productForm').style.display = 'block'; }
 }
 
 function startScanner() {
@@ -305,78 +408,157 @@ function startScanner() {
     scanner.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 120 } },
-        (code) => {
+        function(code) {
             stopScanner();
             document.getElementById('inputCode').value = code;
             document.getElementById('productForm').style.display = 'block';
             switchTab('manual');
             document.getElementById('inputNom').focus();
         },
-        () => {}
-    ).then(() => { scannerStarted = true; })
-     .catch(() => { switchTab('manual'); });
+        function() {}
+    ).then(function() { scannerStarted = true; }).catch(function() { switchTab('manual'); });
 }
-
 function stopScanner() {
     if (scanner && scannerStarted) {
-        scanner.stop().catch(() => {}).finally(() => { scannerStarted = false; });
+        scanner.stop().catch(function(){}).finally(function(){ scannerStarted = false; });
     }
 }
 
-// ===== BUFFER =====
+// ===== AJOUT AU BUFFER =====
 function addToBuffer() {
     const code = document.getElementById('inputCode').value.trim();
     const nom  = document.getElementById('inputNom').value.trim();
     const cat  = document.getElementById('inputCat').value;
     if (!code || !nom) { showToast('⚠️ Code et nom obligatoires'); return; }
-    bufferProducts.push({ nom, code, cat });
-    localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
-    updateBufferBtn();
+    modifications.push({ type: 'add', data: { nom, code, cat } });
+    saveModifications();
     closeScanModal();
-    showToast('✅ "' + nom + '" ajouté au buffer');
+    showToast('✅ "' + nom + '" ajouté');
+}
+
+// ===== EDITION =====
+function openEditModal(code) {
+    resetSwipe(currentSwipeCard);
+    const p = allProducts.find(function(x){ return x.code === code; });
+    if (!p) return;
+    document.getElementById('editOriginalCode').value = p.code;
+    document.getElementById('editCode').value = p.code;
+    document.getElementById('editNom').value = p.nom;
+    document.getElementById('editCat').value = p.cat;
+    document.getElementById('editModal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+function confirmEdit() {
+    const originalCode = document.getElementById('editOriginalCode').value;
+    const code = document.getElementById('editCode').value.trim();
+    const nom  = document.getElementById('editNom').value.trim();
+    const cat  = document.getElementById('editCat').value;
+    if (!code || !nom) { showToast('⚠️ Code et nom obligatoires'); return; }
+    // Retirer une éventuelle modif précédente sur ce même produit
+    modifications = modifications.filter(function(m) {
+        return !(m.originalCode === originalCode && m.type === 'edit');
+    });
+    modifications.push({ type: 'edit', originalCode: originalCode, data: { nom, code, cat } });
+    saveModifications();
+    closeEditModal();
+    showToast('✏️ Modification enregistrée');
+}
+
+// ===== SUPPRESSION =====
+function openDeleteModal(code) {
+    resetSwipe(currentSwipeCard);
+    const p = allProducts.find(function(x){ return x.code === code; });
+    if (!p) return;
+    pendingDeleteCode = code;
+    document.getElementById('deleteProductName').textContent = p.nom + ' (' + p.cat + ')';
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; pendingDeleteCode = null; }
+function confirmDelete() {
+    if (!pendingDeleteCode) return;
+    // Annuler ajout si le produit était dans le buffer add
+    modifications = modifications.filter(function(m) {
+        return !(m.type === 'add' && m.data.code === pendingDeleteCode);
+    });
+    // Retirer modif précédente sur ce produit
+    modifications = modifications.filter(function(m) {
+        return !(m.originalCode === pendingDeleteCode && m.type === 'edit');
+    });
+    // Ajouter suppression seulement si c'est un produit existant (pas juste un ajout)
+    const existsInBase = allProducts.some(function(p){ return p.code === pendingDeleteCode; });
+    if (existsInBase) {
+        modifications.push({ type: 'delete', originalCode: pendingDeleteCode });
+    }
+    saveModifications();
+    closeDeleteModal();
+    showToast('🗑️ Suppression enregistrée');
+}
+
+// ===== FILE DE MODIFICATIONS =====
+function saveModifications() {
+    localStorage.setItem('modifications', JSON.stringify(modifications));
+    updateBufferBtn();
+    renderBuffer();
 }
 
 function updateBufferBtn() {
     const btn = document.getElementById('openBufferBtn');
-    btn.style.display = bufferProducts.length > 0 ? 'block' : 'none';
-    btn.textContent = '📋 Buffer (' + bufferProducts.length + ')';
+    const total = modifications.length;
+    btn.style.display = total > 0 ? 'block' : 'none';
+    btn.textContent = '📋 Modifications (' + total + ')';
 }
 
 function openBufferModal() { renderBuffer(); document.getElementById('bufferModal').style.display = 'flex'; }
 function closeBufferModal() { document.getElementById('bufferModal').style.display = 'none'; }
 
 function renderBuffer() {
-    document.getElementById('bufferCount').textContent = bufferProducts.length + ' produit(s) en attente';
-    if (!bufferProducts.length) {
-        document.getElementById('jsonOutput').textContent = 'Aucun produit scanné pour l\'instant.';
+    const adds  = modifications.filter(function(m){ return m.type === 'add'; });
+    const edits = modifications.filter(function(m){ return m.type === 'edit'; });
+    const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
+    const total = modifications.length;
+
+    document.getElementById('bufferCount').textContent = total + ' modification(s) en attente';
+
+    if (!total) {
+        document.getElementById('jsonOutput').textContent = 'Aucune modification pour l\'instant.';
         return;
     }
-    document.getElementById('jsonOutput').textContent = bufferProducts
-        .map((p, i) => '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < bufferProducts.length - 1 ? ',' : ''))
-        .join('\n');
+
+    let lines = [];
+    if (adds.length)  lines.push('── AJOUTS (' + adds.length + ') ──');
+    adds.forEach(function(m) {
+        lines.push('+ ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat);
+    });
+    if (edits.length) lines.push('── MODIFICATIONS (' + edits.length + ') ──');
+    edits.forEach(function(m) {
+        lines.push('~ [' + m.originalCode + '] → ' + m.data.nom + ' | ' + m.data.code + ' | ' + m.data.cat);
+    });
+    if (dels.length)  lines.push('── SUPPRESSIONS (' + dels.length + ') ──');
+    dels.forEach(function(m) {
+        const p = allProducts.find(function(x){ return x.code === m.originalCode; });
+        lines.push('- ' + (p ? p.nom : m.originalCode));
+    });
+    document.getElementById('jsonOutput').textContent = lines.join('\n');
 }
 
 function copyBuffer() {
-    if (!bufferProducts.length) { showToast('Buffer vide !'); return; }
-    const text = bufferProducts
-        .map((p, i) => '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < bufferProducts.length - 1 ? ',' : ''))
-        .join('\n');
-    navigator.clipboard.writeText(text)
-        .then(() => showToast('✅ Copié !'))
-        .catch(() => {
+    if (!modifications.length) { showToast('Aucune modification !'); return; }
+    const el = document.getElementById('jsonOutput');
+    navigator.clipboard.writeText(el.textContent)
+        .then(function(){ showToast('✅ Copié !'); })
+        .catch(function() {
             const ta = document.createElement('textarea');
-            ta.value = text; document.body.appendChild(ta); ta.select();
+            ta.value = el.textContent; document.body.appendChild(ta); ta.select();
             document.execCommand('copy'); document.body.removeChild(ta);
             showToast('✅ Copié !');
         });
 }
 
 function clearBuffer() {
-    if (!confirm('Effacer tous les produits du buffer ?')) return;
-    bufferProducts = [];
-    localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
-    updateBufferBtn(); renderBuffer();
-    showToast('🗑️ Buffer effacé');
+    if (!confirm('Effacer toutes les modifications ?')) return;
+    modifications = [];
+    saveModifications();
+    showToast('🗑️ File effacée');
 }
 
 // ===== PARAMÈTRES =====
@@ -398,6 +580,23 @@ function saveSettings() {
 }
 
 // ===== GITHUB API =====
+function toB64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    bytes.forEach(function(b){ binary += String.fromCharCode(b); });
+    return btoa(binary);
+}
+function fromB64(b64) {
+    const binary = atob(b64.replace(/\n/g, ''));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+}
+function getNextSwVersion(swContent) {
+    const match = swContent.match(/rayon-frais-v(\d+)/);
+    return match ? 'rayon-frais-v' + (parseInt(match[1]) + 1) : 'rayon-frais-v2';
+}
+
 async function ghGet(path) {
     const token  = localStorage.getItem('gh_token');
     const owner  = localStorage.getItem('gh_owner');
@@ -406,10 +605,9 @@ async function ghGet(path) {
     const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path + '?ref=' + branch, {
         headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' }
     });
-    if (!res.ok) throw new Error('GitHub ' + res.status + ' ' + res.statusText);
+    if (!res.ok) throw new Error('GitHub ' + res.status + ': ' + res.statusText);
     return res.json();
 }
-
 async function ghPut(path, message, contentB64, sha) {
     const token  = localStorage.getItem('gh_token');
     const owner  = localStorage.getItem('gh_owner');
@@ -426,50 +624,56 @@ async function ghPut(path, message, contentB64, sha) {
     return res.json();
 }
 
-function toB64(str) {
-    const bytes = new TextEncoder().encode(str);
-    let binary = '';
-    bytes.forEach(b => binary += String.fromCharCode(b));
-    return btoa(binary);
-}
-function fromB64(b64) {
-    const binary = atob(b64.replace(/\n/g, ''));
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-    return new TextDecoder('utf-8').decode(bytes);
-}
-
-function getNextSwVersion(swContent) {
-    const match = swContent.match(/rayon-frais-v(\d+)/);
-    return match ? 'rayon-frais-v' + (parseInt(match[1]) + 1) : 'rayon-frais-v2';
-}
-
-// ===== CONFIRMATION PUSH =====
+// ===== CONFIRMATION PUBLISH =====
 function openConfirmModal() {
-    if (!localStorage.getItem('gh_token')) {
-        showToast('⚙️ Configurez d\'abord vos paramètres GitHub');
-        openSettings(); return;
+    if (!localStorage.getItem('gh_token')) { showToast('⚙️ Configurez d\'abord les paramètres GitHub'); openSettings(); return; }
+    if (!modifications.length) { showToast('Aucune modification !'); return; }
+
+    const adds  = modifications.filter(function(m){ return m.type === 'add'; });
+    const edits = modifications.filter(function(m){ return m.type === 'edit'; });
+    const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
+    const existingCodes = allProducts.map(function(p){ return p.code; });
+
+    let html = '';
+
+    if (adds.length) {
+        html += '<div class="recap-section"><p class="recap-section-title add">➕ ' + adds.length + ' ajout(s)</p><div class="recap-list">';
+        adds.forEach(function(m) {
+            const dup = existingCodes.includes(m.data.code);
+            html += '<div class="recap-item add"><strong>' + escapeHtml(m.data.nom) + '</strong> (' + escapeHtml(m.data.cat) + ')<br>'
+                  + '<span style="font-family:monospace;font-size:12px">' + escapeHtml(m.data.code) + '</span>'
+                  + (dup ? '<span class="dup-tag">⚠️ doublon</span>' : '') + '</div>';
+        });
+        html += '</div></div>';
     }
-    if (!bufferProducts.length) { showToast('Buffer vide !'); return; }
+    if (edits.length) {
+        html += '<div class="recap-section"><p class="recap-section-title edit">✏️ ' + edits.length + ' modification(s)</p><div class="recap-list">';
+        edits.forEach(function(m) {
+            const orig = allProducts.find(function(p){ return p.code === m.originalCode; });
+            html += '<div class="recap-item edit">'
+                  + (orig ? '<span style="text-decoration:line-through;color:#888;font-size:12px">' + escapeHtml(orig.nom) + '</span><br>' : '')
+                  + '<strong>' + escapeHtml(m.data.nom) + '</strong> (' + escapeHtml(m.data.cat) + ')<br>'
+                  + '<span style="font-family:monospace;font-size:12px">' + escapeHtml(m.data.code) + '</span></div>';
+        });
+        html += '</div></div>';
+    }
+    if (dels.length) {
+        html += '<div class="recap-section"><p class="recap-section-title del">🗑️ ' + dels.length + ' suppression(s)</p><div class="recap-list">';
+        dels.forEach(function(m) {
+            const p = allProducts.find(function(x){ return x.code === m.originalCode; });
+            html += '<div class="recap-item del"><strong>' + escapeHtml(p ? p.nom : m.originalCode) + '</strong>'
+                  + (p ? ' (' + escapeHtml(p.cat) + ')' : '') + '</div>';
+        });
+        html += '</div></div>';
+    }
 
-    const existingCodes = allProducts.map(p => p.code);
-    const items = bufferProducts.map(p => {
-        const dup = existingCodes.includes(p.code);
-        return '<div class="confirm-item"><strong>' + p.nom + '</strong> <span style="color:#888">(' + p.cat + ')</span><br>'
-             + '<span style="font-family:monospace;font-size:13px">' + p.code + '</span>'
-             + (dup ? '<span class="dup-tag">⚠️ doublon</span>' : '') + '</div>';
-    }).join('');
+    const dupCount = adds.filter(function(m){ return existingCodes.includes(m.data.code); }).length;
+    if (dupCount) html += '<div class="warn-box">⚠️ ' + dupCount + ' doublon(s) ignoré(s).</div>';
 
-    const dupCount = bufferProducts.filter(p => existingCodes.includes(p.code)).length;
-    const dupWarn  = dupCount ? '<div class="warn-box">⚠️ ' + dupCount + ' doublon(s) ignoré(s).</div>' : '';
+    html += '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Annuler</button>'
+          + '<button class="btn-primary" style="flex:1;margin-top:0" onclick="pushToGitHub()">✅ Confirmer</button></div>';
 
-    document.getElementById('confirmContent').innerHTML =
-        '<p style="margin:0 0 8px;font-size:14px">Vous êtes sur le point d\'ajouter <strong>' + bufferProducts.length + ' produit(s)</strong> :</p>'
-        + '<div class="confirm-list">' + items + '</div>'
-        + dupWarn
-        + '<div class="btn-row"><button class="btn-secondary" onclick="closeConfirmModal()">Annuler</button>'
-        + '<button class="btn-primary" style="flex:1;margin-top:0" onclick="pushToGitHub()">✅ Confirmer</button></div>';
-
+    document.getElementById('confirmContent').innerHTML = html;
     closeBufferModal();
     document.getElementById('confirmModal').style.display = 'flex';
 }
@@ -479,30 +683,50 @@ async function pushToGitHub() {
     document.getElementById('confirmContent').innerHTML = '<div class="push-loading">⏳ Publication en cours...</div>';
     try {
         const prodFile = await ghGet('produits.json');
-        const existing = JSON.parse(fromB64(prodFile.content));
-        const existingCodes = existing.map(p => p.code);
-        const newProds = bufferProducts.filter(p => !existingCodes.includes(p.code));
-        const merged = existing.concat(newProds);
+        let merged = JSON.parse(fromB64(prodFile.content));
 
+        const adds  = modifications.filter(function(m){ return m.type === 'add'; });
+        const edits = modifications.filter(function(m){ return m.type === 'edit'; });
+        const dels  = modifications.filter(function(m){ return m.type === 'delete'; });
+
+        // 1. Suppressions
+        dels.forEach(function(m) {
+            merged = merged.filter(function(p){ return p.code !== m.originalCode; });
+        });
+
+        // 2. Modifications
+        edits.forEach(function(m) {
+            const idx = merged.findIndex(function(p){ return p.code === m.originalCode; });
+            if (idx !== -1) merged[idx] = m.data;
+        });
+
+        // 3. Ajouts (sans doublons)
+        const existingCodes = merged.map(function(p){ return p.code; });
+        adds.forEach(function(m) {
+            if (!existingCodes.includes(m.data.code)) { merged.push(m.data); existingCodes.push(m.data.code); }
+        });
+
+        // Formatter le JSON
+        const prodJson = '[\n' + merged.map(function(p, i) {
+            return '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' + (i < merged.length - 1 ? ',' : '');
+        }).join('\n') + '\n]';
+
+        // Bump SW
         const swFile = await ghGet('sw.js');
         const swContent = fromB64(swFile.content);
         const newVersion = getNextSwVersion(swContent);
         const newSwContent = swContent.replace(/rayon-frais-v\d+/, newVersion);
 
-        const prodJson = '[\n' + merged.map((p, i) =>
-            '  { "nom": "' + p.nom + '", "code": "' + p.code + '", "cat": "' + p.cat + '" }' +
-            (i < merged.length - 1 ? ',' : '')
-        ).join('\n') + '\n]';
-        await ghPut('produits.json', 'Ajout de ' + newProds.length + ' produit(s)', toB64(prodJson), prodFile.sha);
+        await ghPut('produits.json', 'Mise à jour produits (' + adds.length + ' ajout(s), ' + edits.length + ' modif(s), ' + dels.length + ' suppression(s))', toB64(prodJson), prodFile.sha);
         await ghPut('sw.js', 'Bump cache ' + newVersion, toB64(newSwContent), swFile.sha);
 
+        // Mettre à jour l'état local
         allProducts = merged;
         displayProducts(allProducts);
-        bufferProducts = [];
-        localStorage.setItem('bufferProducts', JSON.stringify(bufferProducts));
-        updateBufferBtn();
+        modifications = [];
+        saveModifications();
         closeConfirmModal();
-        showToast('✅ ' + newProds.length + ' produit(s) publié(s) !');
+        showToast('✅ Publié avec succès !');
     } catch(e) {
         document.getElementById('confirmContent').innerHTML =
             '<div class="error-box">❌ Erreur : ' + e.message + '</div>'
@@ -510,57 +734,49 @@ async function pushToGitHub() {
     }
 }
 
-// ===== FAB : clic court = scanner / appui long = paramètres =====
+// ===== FAB =====
 (function() {
     const fab = document.getElementById('fabBtn');
     let pressTimer = null;
-
     function startPress() {
         pressTimer = setTimeout(function() {
             pressTimer = null;
             fab.classList.add('long-press');
-            setTimeout(function() { fab.classList.remove('long-press'); }, 400);
+            setTimeout(function(){ fab.classList.remove('long-press'); }, 400);
             openSettings();
         }, 800);
     }
     function endPress(doOpen) {
-        if (pressTimer) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-            if (doOpen) openScanModal();
-        }
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; if (doOpen) openScanModal(); }
     }
-
     fab.addEventListener('mousedown', startPress);
-    fab.addEventListener('mouseup', function() { endPress(true); });
-    fab.addEventListener('mouseleave', function() { endPress(false); });
-    fab.addEventListener('touchstart', function(e) { e.preventDefault(); startPress(); }, { passive: false });
-    fab.addEventListener('touchend', function(e) { e.preventDefault(); endPress(true); });
-    fab.addEventListener('touchmove', function() { endPress(false); });
+    fab.addEventListener('mouseup', function(){ endPress(true); });
+    fab.addEventListener('mouseleave', function(){ endPress(false); });
+    fab.addEventListener('touchstart', function(e){ e.preventDefault(); startPress(); }, { passive: false });
+    fab.addEventListener('touchend', function(e){ e.preventDefault(); endPress(true); });
+    fab.addEventListener('touchmove', function(){ endPress(false); });
 })();
 
 // ===== FERMER MODALS =====
 window.onclick = function(e) {
-    if (e.target === document.getElementById('barcodeModal')) closeModal();
-    if (e.target === document.getElementById('bufferModal'))  closeBufferModal();
-    if (e.target === document.getElementById('scanModal'))    closeScanModal();
-    if (e.target === document.getElementById('confirmModal')) closeConfirmModal();
-    if (e.target === document.getElementById('settingsModal')) closeSettings();
+    var modals = ['barcodeModal','bufferModal','scanModal','confirmModal','settingsModal','editModal','deleteModal'];
+    modals.forEach(function(id) {
+        if (e.target === document.getElementById(id)) document.getElementById(id).style.display = 'none';
+    });
 };
 
 // ===== TOAST =====
 function showToast(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 2500);
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
 
 // ===== INIT =====
 loadProducts();
 updateBufferBtn();
 
-// PWA Install
+// PWA
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 window.addEventListener('beforeinstallprompt', function(e) {
