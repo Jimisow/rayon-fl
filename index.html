@@ -277,7 +277,20 @@
             <button class="tab-btn active" id="tabBtnScan" onclick="switchTab('scan')">📷 Scanner</button>
             <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">⌨️ Manuel</button>
         </div>
-        <div id="tabScan"><div id="scannerView"></div><p class="scan-hint">Pointez la caméra vers le code-barres</p></div>
+        <div id="tabScan">
+            <div id="scannerView"></div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+                <button id="torchBtn" onclick="toggleTorch()"
+                    style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--r1);background:var(--surface2);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;color:var(--text2);transition:all 0.2s">
+                    🔦 Torche
+                </button>
+                <button onclick="scanFromImage()"
+                    style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--r1);background:var(--surface2);font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;color:var(--text2)">
+                    📷 Scanner une photo
+                </button>
+            </div>
+            <p class="scan-hint">Pointez la caméra ou prenez une photo du code-barres</p>
+        </div>
         <div id="tabManual" style="display:none"></div>
         <div id="productForm" style="display:none;margin-top:10px">
             <div class="scan-detected">Code détecté — modifiez si besoin</div>
@@ -546,7 +559,15 @@ function switchTab(tab) {
 function startScanner() {
     if (scannerStarted) return;
     if (!scanner) scanner = new Html5Qrcode('scannerView');
-    scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 250, height: 110 } },
+    scanner.start(
+        { facingMode: 'environment' },
+        {
+            fps: 15,
+            qrbox: function(w, h) { return { width: Math.min(w, h) * 0.82, height: Math.min(w, h) * 0.38 }; },
+            aspectRatio: 1.5,
+            focusMode: 'continuous',
+            advanced: [{ focusMode: 'continuous' }]
+        },
         function(code) {
             stopScanner();
             document.getElementById('inputCode').value = code;
@@ -554,10 +575,67 @@ function startScanner() {
             switchTab('manual');
             document.getElementById('inputNom').focus();
         }, function() {}
-    ).then(function(){ scannerStarted = true; }).catch(function(){ switchTab('manual'); });
+    ).then(function(){
+        scannerStarted = true;
+        // Activer autofocus continu via constraints si possible
+        try {
+            const track = scanner._mediaStream && scanner._mediaStream.getVideoTracks()[0];
+            if (track && track.applyConstraints) {
+                track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(function(){});
+            }
+        } catch(e) {}
+        updateTorchBtn();
+    }).catch(function(){ switchTab('manual'); });
 }
+
 function stopScanner() {
-    if (scanner && scannerStarted) scanner.stop().catch(function(){}).finally(function(){ scannerStarted = false; });
+    torchOn = false;
+    if (scanner && scannerStarted) scanner.stop().catch(function(){}).finally(function(){ scannerStarted = false; updateTorchBtn(); });
+}
+
+// ── TORCHE ──
+let torchOn = false;
+function toggleTorch() {
+    if (!scanner || !scannerStarted) return;
+    try {
+        const track = scanner._mediaStream && scanner._mediaStream.getVideoTracks()[0];
+        if (!track) { showToast('⚠️ Torche non disponible'); return; }
+        torchOn = !torchOn;
+        track.applyConstraints({ advanced: [{ torch: torchOn }] })
+            .then(function(){ updateTorchBtn(); })
+            .catch(function(){ showToast('⚠️ Torche non supportée sur cet appareil'); torchOn = false; updateTorchBtn(); });
+    } catch(e) { showToast('⚠️ Torche non disponible'); torchOn = false; }
+}
+function updateTorchBtn() {
+    const btn = document.getElementById('torchBtn');
+    if (!btn) return;
+    btn.textContent = torchOn ? '🔦 Torche ON' : '🔦 Torche';
+    btn.style.background = torchOn ? '#f57f17' : '';
+    btn.style.color = torchOn ? 'white' : '';
+    btn.style.borderColor = torchOn ? '#f57f17' : '';
+}
+
+// ── SCAN DEPUIS IMAGE ──
+function scanFromImage() {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+    input.onchange = async function() {
+        const file = input.files[0];
+        if (!file) return;
+        showToast('🔍 Analyse en cours...');
+        try {
+            if (!scanner) scanner = new Html5Qrcode('scannerView');
+            const result = await scanner.scanFile(file, false);
+            document.getElementById('inputCode').value = result;
+            document.getElementById('productForm').style.display = 'block';
+            switchTab('manual');
+            document.getElementById('inputNom').focus();
+            showToast('✅ Code détecté !');
+        } catch(e) {
+            showToast('❌ Code-barres non détecté, réessayez');
+        }
+    };
+    input.click();
 }
 
 // ===== MODIFICATIONS =====
