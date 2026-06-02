@@ -35,8 +35,16 @@
             background: linear-gradient(160deg, #1a3d1f 0%, #2e7d32 55%, #43a047 100%);
             padding: 20px 20px 22px; position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+            transition: padding 0.25s ease;
         }
-        .hdr-top { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; }
+        header.compact { padding: 10px 16px 12px; }
+        .hdr-top {
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px;
+            overflow: hidden; max-height: 60px;
+            transition: max-height 0.25s ease, margin-bottom 0.25s ease, opacity 0.2s ease;
+            opacity: 1;
+        }
+        header.compact .hdr-top { max-height: 0; margin-bottom: 0; opacity: 0; pointer-events: none; }
         .hdr-emoji { font-size: 26px; }
         header h1 { font-size: 1.18rem; font-weight: 700; color: white; letter-spacing: -0.2px; }
         .hdr-search { position: relative; }
@@ -44,11 +52,13 @@
             width: 100%; padding: 11px 40px 11px 38px;
             background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.25);
             border-radius: 50px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;
-            outline: none; transition: background 0.2s, border-color 0.2s; backdrop-filter: blur(8px);
+            outline: none; transition: background 0.2s, border-color 0.2s, padding 0.25s; backdrop-filter: blur(8px);
         }
+        header.compact .hdr-search input { padding: 9px 36px 9px 34px; font-size: 13px; }
         .hdr-search input::placeholder { color: rgba(255,255,255,0.6); }
         .hdr-search input:focus { background: rgba(255,255,255,0.22); border-color: rgba(255,255,255,0.5); }
-        .hdr-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+        .hdr-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; transition: font-size 0.25s; }
+        header.compact .hdr-search-icon { font-size: 13px; left: 10px; }
         .hdr-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; color: white; cursor: pointer; display: none; align-items: center; justify-content: center; font-weight: 700; }
 
         /* ── ENGRENAGE ── */
@@ -82,7 +92,15 @@
         .gear-menu-item span { font-size: 18px; }
 
         /* ── FILTRES ── */
-        .filters { display: flex; gap: 8px; padding: 14px 16px 0; max-width: 600px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+        .filters {
+            display: flex; gap: 8px; padding: 10px 16px 0;
+            max-width: 600px; margin: 0 auto;
+            overflow-x: auto; scrollbar-width: none;
+            position: sticky; top: var(--header-h, 100px); z-index: 99;
+            background: var(--bg);
+            padding-bottom: 8px;
+            transition: top 0.25s ease;
+        }
         .filters::-webkit-scrollbar { display: none; }
         .filter-chip {
             flex-shrink: 0; padding: 7px 16px; border-radius: 50px;
@@ -622,6 +640,8 @@ document.getElementById('searchInput').addEventListener('input', function() {
     const s = this.value;
     document.getElementById('clearSearch').style.display = s ? 'flex' : 'none';
     displayProducts(allProducts);
+    // Scroll vers le haut pour voir les résultats
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 document.getElementById('clearSearch').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
@@ -977,6 +997,35 @@ function showToast(msg) {
     t.textContent = msg; t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
+
+// ===== HEADER COMPACT AU SCROLL =====
+(function() {
+    const header = document.querySelector('header');
+    const filters = document.querySelector('.filters');
+    let lastScroll = 0;
+    let ticking = false;
+
+    function updateHeader() {
+        const scrollY = window.scrollY;
+        if (scrollY > 60) {
+            header.classList.add('compact');
+        } else {
+            header.classList.remove('compact');
+        }
+        // Mettre à jour la position sticky des filtres
+        const hh = header.offsetHeight;
+        if (filters) filters.style.top = hh + 'px';
+        lastScroll = scrollY;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!ticking) { requestAnimationFrame(updateHeader); ticking = true; }
+    }, { passive: true });
+
+    // Init
+    setTimeout(updateHeader, 100);
+})();
 
 // ===== INIT =====
 loadProducts();
