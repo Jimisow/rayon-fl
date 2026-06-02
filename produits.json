@@ -153,5 +153,9 @@
 { "nom": "Noisette fraiche urac", "code": "200409000000", "cat": "Autres" },
 { "nom": "Piment cabris", "code": "207747000000", "cat": "Autres" },
 { "nom": "Pistache verte urac", "code": "204375000000", "cat": "Autres" },
-{ "nom": "Topinambour urac France", "code": "205450000000", "cat": "Autres" }
+{ "nom": "Topinambour urac France", "code": "205450000000", "cat": "Autres" },
+{ "nom": "Bibasse Reunion", "code": "200361000000", "cat": "Fruits" },
+{ "nom": "Citron Caviar", "code": "204758000000", "cat": "Fruits" },
+{ "nom": "Coeur Boeuf", "code": "200498000000", "cat": "Légumes" },
+{ "nom": "Datte Medjoul Vrac", "code": "205635000000", "cat": "Fruits" }
 ]
