@@ -532,9 +532,12 @@ function displayProducts(products) {
     list.innerHTML = '';
 
     const s = document.getElementById('searchInput').value.toLowerCase();
+    const isSearching = s.length > 0;
     const filtered = products.filter(function(p) {
-        return (p.nom.toLowerCase().includes(s) || p.code.includes(s)) &&
-               (currentCatFilter === '' || p.cat === currentCatFilter);
+        const matchSearch = p.nom.toLowerCase().includes(s) || p.code.includes(s);
+        const matchCat = currentCatFilter === '' || p.cat === currentCatFilter;
+        // Si on tape dans la recherche, on ignore le filtre catégorie
+        return isSearching ? matchSearch : (matchSearch && matchCat);
     });
 
     if (countEl) countEl.textContent = filtered.length + ' produit' + (filtered.length > 1 ? 's' : '');
