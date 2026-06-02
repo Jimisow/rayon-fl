@@ -51,6 +51,36 @@
         .hdr-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
         .hdr-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; color: white; cursor: pointer; display: none; align-items: center; justify-content: center; font-weight: 700; }
 
+        /* ── ENGRENAGE ── */
+        .gear-wrapper { position: relative; z-index: 200; }
+        .gear-btn {
+            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.2);
+            width: 38px; height: 38px; border-radius: 50%; font-size: 18px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; backdrop-filter: blur(4px);
+            color: white;
+        }
+        .gear-btn:active { background: rgba(255,255,255,0.25); }
+        .gear-menu {
+            position: absolute; top: 48px; left: 0;
+            background: var(--surface); border-radius: var(--r2);
+            box-shadow: var(--sh3); min-width: 200px;
+            overflow: hidden; display: none;
+            border: 1px solid var(--border);
+            animation: popIn 0.2s cubic-bezier(.32,1.2,.55,1);
+        }
+        .gear-menu.open { display: block; }
+        .gear-menu-item {
+            width: 100%; padding: 14px 16px; border: none; background: none;
+            font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+            color: var(--text1); cursor: pointer; text-align: left;
+            display: flex; align-items: center; gap: 10px;
+            transition: background 0.15s; border-bottom: 1px solid var(--border);
+        }
+        .gear-menu-item:last-child { border-bottom: none; }
+        .gear-menu-item:active { background: var(--g50); }
+        .gear-menu-item span { font-size: 18px; }
+
         /* ── FILTRES ── */
         .filters { display: flex; gap: 8px; padding: 14px 16px 0; max-width: 600px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
         .filters::-webkit-scrollbar { display: none; }
@@ -189,19 +219,7 @@
             cursor: pointer; box-shadow: 0 4px 16px rgba(21,101,192,0.4); z-index: 500; display: none;
         }
 
-        /* ── FAB ── */
-        .fab {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 62px; height: 62px; border-radius: 50%;
-            background: linear-gradient(145deg, var(--g700), var(--g900));
-            color: white; font-size: 30px; border: none; cursor: pointer;
-            box-shadow: 0 6px 22px rgba(46,125,50,0.5);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 500; user-select: none; -webkit-user-select: none;
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .fab:active { transform: scale(0.91); }
-        .fab.long-press { background: linear-gradient(145deg, #455a64, #263238); box-shadow: 0 6px 22px rgba(0,0,0,0.35); }
+
 
 
 
@@ -231,8 +249,20 @@
 
 <header>
     <div class="hdr-top">
+        <div class="gear-wrapper" id="gearWrapper">
+            <button class="gear-btn" id="gearBtn" onclick="toggleGearMenu()" title="Menu">⚙️</button>
+            <div class="gear-menu" id="gearMenu">
+                <button class="gear-menu-item" onclick="closeGearMenu(); openScanModal()">
+                    <span>➕</span> Ajouter un produit
+                </button>
+                <button class="gear-menu-item" onclick="closeGearMenu(); openSettings()">
+                    <span>🔧</span> Paramètres
+                </button>
+            </div>
+        </div>
         <span class="hdr-emoji">🥦</span>
         <h1>Rayon Fruits & Légumes</h1>
+        <div style="width:38px"></div><!-- spacer pour centrer le titre -->
     </div>
     <div class="hdr-search">
         <span class="hdr-search-icon">🔍</span>
@@ -387,8 +417,6 @@
 
 <div id="badgeDot" style="display:none"></div>
 
-<!-- FAB -->
-<button class="fab" id="fabBtn">+</button>
 
 <div class="toast" id="toast"></div>
 
@@ -402,10 +430,7 @@ let pendingDeleteCode = null;
 let currentCatFilter = '';
 
 // ===== BADGE POINT ROUGE =====
-function updateBadge() {
-    const dot = document.getElementById('badgeDot');
-    if (dot) dot.style.display = modifications.length > 0 ? 'block' : 'none';
-}
+function updateBadge() {}
 
 // ===== PRODUITS =====
 async function loadProducts() {
@@ -422,6 +447,83 @@ async function loadProducts() {
 }
 
 function catKey(cat) { return cat === 'Fruits' ? 'fruits' : cat === 'Légumes' ? 'legumes' : 'autres'; }
+function productEmoji(nom, cat) {
+    const n = nom.toLowerCase();
+    // Fruits
+    if (n.includes('ananas')) return '🍍';
+    if (n.includes('avocat')) return '🥑';
+    if (n.includes('banane')) return '🍌';
+    if (n.includes('cerise')) return '🍒';
+    if (n.includes('citron vert')) return '🍋';
+    if (n.includes('citron')) return '🍋';
+    if (n.includes('coco') || n.includes('noix de coco')) return '🥥';
+    if (n.includes('datte')) return '🌴';
+    if (n.includes('figue')) return '🫐';
+    if (n.includes('fraise')) return '🍓';
+    if (n.includes('fruit passion')) return '🌺';
+    if (n.includes('grenade')) return '🍎';
+    if (n.includes('kaki')) return '🟠';
+    if (n.includes('letchi') || n.includes('longani')) return '🍈';
+    if (n.includes('mandarine')) return '🍊';
+    if (n.includes('mangue')) return '🥭';
+    if (n.includes('melon')) return '🍈';
+    if (n.includes('nectarine') || n.includes('peche')) return '🍑';
+    if (n.includes('orange') || n.includes('pomelo') || n.includes('pomelos')) return '🍊';
+    if (n.includes('papaye')) return '🧡';
+    if (n.includes('pasteque')) return '🍉';
+    if (n.includes('pitaya')) return '🐉';
+    if (n.includes('poire')) return '🍐';
+    if (n.includes('pomme')) return '🍏';
+    if (n.includes('prune')) return '🍇';
+    if (n.includes('raisin')) return '🍇';
+    if (n.includes('bibasse') || n.includes('sapotille') || n.includes('caimbite') || n.includes('carambole') || n.includes('pepino') || n.includes('jujube') || n.includes('mangoustan')) return '🌿';
+    if (n.includes('abricot')) return '🍑';
+    if (n.includes('noix')) return '🪨';
+    if (n.includes('noisette') || n.includes('pistache')) return '🥜';
+    if (n.includes('kumquat')) return '🍊';
+    // Légumes
+    if (n.includes('ail')) return '🧄';
+    if (n.includes('artichaut')) return '🌱';
+    if (n.includes('aubergine')) return '🍆';
+    if (n.includes('betterave')) return '🔴';
+    if (n.includes('brocoli')) return '🥦';
+    if (n.includes('carotte')) return '🥕';
+    if (n.includes('champignon')) return '🍄';
+    if (n.includes('chou fleur')) return '🥦';
+    if (n.includes('chou')) return '🥬';
+    if (n.includes('chouchou')) return '🟢';
+    if (n.includes('citrouille') || n.includes('courge') || n.includes('patisson')) return '🎃';
+    if (n.includes('concombre')) return '🥒';
+    if (n.includes('courgette')) return '🥒';
+    if (n.includes('endive')) return '🥬';
+    if (n.includes('fenouil')) return '🌿';
+    if (n.includes('haricot')) return '🫘';
+    if (n.includes('mais')) return '🌽';
+    if (n.includes('manioc')) return '🌾';
+    if (n.includes('navet')) return '🫚';
+    if (n.includes('oignon')) return '🧅';
+    if (n.includes('patate') || n.includes('pomme de terre')) return '🥔';
+    if (n.includes('petit pois') || n.includes('mange tout')) return '🫛';
+    if (n.includes('piment') || n.includes('poivron')) return '🌶️';
+    if (n.includes('poireau')) return '🥬';
+    if (n.includes('radis')) return '🔴';
+    if (n.includes('salade')) return '🥗';
+    if (n.includes('tomate')) return '🍅';
+    if (n.includes('brede')) return '🌿';
+    if (n.includes('margoze') || n.includes('combaura') || n.includes('songe') || n.includes('coton mili')) return '🌿';
+    // Autres
+    if (n.includes('basilic') || n.includes('menthe') || n.includes('persil') || n.includes('thym')) return '🌿';
+    if (n.includes('celeri')) return '🥬';
+    if (n.includes('curcuma') || n.includes('gingembre')) return '🫚';
+    if (n.includes('jus')) return '🧃';
+    if (n.includes('piment cabris')) return '🌶️';
+    if (n.includes('topinambour')) return '🥔';
+    if (n.includes('sac')) return '🛍️';
+    // Défaut par catégorie
+    if (cat === 'Fruits') return '🍎';
+    if (cat === 'Légumes') return '🥬';
+    return '🌿';
+}
 function catEmoji(cat) { return cat === 'Fruits' ? '🍎' : cat === 'Légumes' ? '🥬' : '🌿'; }
 
 function displayProducts(products) {
@@ -444,7 +546,6 @@ function displayProducts(products) {
 
     filtered.slice().sort(function(a,b){ return a.nom.localeCompare(b.nom); }).forEach(function(p) {
         const ck = catKey(p.cat);
-        const ce = catEmoji(p.cat);
 
         const wrapper = document.createElement('div');
         wrapper.className = 'swipe-wrapper';
@@ -460,7 +561,7 @@ function displayProducts(products) {
         card.dataset.code = p.code;
         card.innerHTML =
             '<div class="card-left">' +
-            '<div class="cat-icon ' + ck + '">' + ce + '</div>' +
+            '<div class="cat-icon ' + ck + '">' + productEmoji(p.nom, p.cat) + '</div>' +
             '<div><span class="card-nom">' + escapeHtml(p.nom) + '</span>' +
             '<span class="cat-badge ' + ck + '">' + escapeHtml(p.cat) + '</span></div>' +
             '</div><span class="card-arrow">›</span>';
@@ -847,32 +948,17 @@ async function pushToGitHub() {
     }
 }
 
-// ===== FAB — appui long = paramètres, clic = scanner =====
-window.addEventListener('DOMContentLoaded', function() {
-    const fab = document.getElementById('fabBtn');
-    let pressTimer = null;
-    let longPressed = false;
-
-    function startPress() {
-        longPressed = false;
-        pressTimer = setTimeout(function() {
-            longPressed = true;
-            pressTimer = null;
-            fab.classList.add('long-press');
-            setTimeout(function(){ fab.classList.remove('long-press'); }, 500);
-            openSettings();
-        }, 800);
-    }
-    function endPress(doOpen) {
-        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; if (doOpen && !longPressed) openScanModal(); }
-        else if (doOpen && longPressed) { longPressed = false; } // consommer sans ouvrir
-    }
-    fab.addEventListener('mousedown', startPress);
-    fab.addEventListener('mouseup', function(){ endPress(true); });
-    fab.addEventListener('mouseleave', function(){ endPress(false); });
-    fab.addEventListener('touchstart', function(e){ e.preventDefault(); startPress(); }, { passive: false });
-    fab.addEventListener('touchend', function(e){ e.preventDefault(); endPress(true); });
-    fab.addEventListener('touchmove', function(){ endPress(false); });
+// ===== MENU ENGRENAGE =====
+function toggleGearMenu() {
+    document.getElementById('gearMenu').classList.toggle('open');
+}
+function closeGearMenu() {
+    document.getElementById('gearMenu').classList.remove('open');
+}
+// Fermer le menu en cliquant ailleurs
+document.addEventListener('click', function(e) {
+    const wrapper = document.getElementById('gearWrapper');
+    if (wrapper && !wrapper.contains(e.target)) closeGearMenu();
 });
 
 // ===== FERMER MODALS =====
