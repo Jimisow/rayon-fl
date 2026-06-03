@@ -35,7 +35,7 @@
 
         /* ── HEADER ── */
         header{
-            background:linear-gradient(160deg,#1a3d1f 0%,#2e7d32 55%,#43a047 100%);
+            background:#2e7d32;
             padding:14px 16px 12px;position:relative;
             box-shadow:0 2px 24px rgba(0,0,0,0.18);
         }
@@ -97,7 +97,7 @@
 
         /* ── FILTRES ── */
         .filters-bar{
-            background:linear-gradient(160deg,#1a3d1f 0%,#2e7d32 55%,#43a047 100%);
+            background:#2e7d32;
             padding:0 0 10px;
             box-shadow:0 3px 16px rgba(0,0,0,0.15);
         }
@@ -647,8 +647,8 @@ document.getElementById('searchInput').addEventListener('input', function() {
     const s = this.value;
     document.getElementById('clearSearch').style.display = s ? 'flex' : 'none';
     displayProducts(allProducts);
-    // Scroll vers le haut pour voir les résultats
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll tout en haut (sentinel inclus) pour voir le header complet
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
 });
 document.getElementById('clearSearch').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
@@ -1005,13 +1005,26 @@ function showToast(msg) {
     setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
 
-// ===== HEADER COMPACT — IntersectionObserver (zéro boucle) =====
+// ===== HEADER COMPACT — IntersectionObserver (ignore le clavier virtuel) =====
 (function() {
     const sentinel = document.getElementById('scroll-sentinel');
     const hdrTop   = document.getElementById('hdrTop');
     if (!sentinel || !hdrTop) return;
+
+    // Mémoriser la hauteur initiale du viewport pour détecter l'ouverture du clavier
+    let initialVH = window.innerHeight;
+    let keyboardOpen = false;
+
+    // Détecter si le clavier est ouvert (hauteur viewport réduite de plus de 150px)
+    window.addEventListener('resize', function() {
+        keyboardOpen = window.innerHeight < initialVH - 150;
+        // Si le clavier se ferme, recalibrer
+        if (!keyboardOpen) initialVH = Math.max(initialVH, window.innerHeight);
+    });
+
     const obs = new IntersectionObserver(function(entries) {
-        // Quand le sentinel n'est plus visible → on est scrollé → compact
+        // Ignorer si le clavier est ouvert (ça provoquerait un faux scroll)
+        if (keyboardOpen) return;
         hdrTop.classList.toggle('hidden', !entries[0].isIntersecting);
     }, { threshold: 0 });
     obs.observe(sentinel);
