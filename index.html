@@ -57,26 +57,25 @@
         .hdr-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; color: white; cursor: pointer; display: none; align-items: center; justify-content: center; font-weight: 700; }
 
         /* ── ENGRENAGE ── */
-        .gear-wrapper { position: relative; z-index: 200; }
+        .gear-wrapper { position: absolute; top: 12px; left: 12px; z-index: 200; }
         .gear-btn {
-            background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.2);
-            width: 38px; height: 38px; border-radius: 50%; font-size: 18px;
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+            width: 30px; height: 30px; border-radius: 50%; font-size: 14px;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s; backdrop-filter: blur(4px);
-            color: white;
+            transition: background 0.2s; backdrop-filter: blur(4px); color: white; opacity: 0.8;
         }
-        .gear-btn:active { background: rgba(255,255,255,0.25); }
+        .gear-btn:active { background: rgba(255,255,255,0.25); opacity: 1; }
         .gear-menu {
-            position: absolute; top: 48px; left: 0;
+            position: absolute; top: 36px; left: 0;
             background: var(--surface); border-radius: var(--r2);
-            box-shadow: var(--sh3); min-width: 200px;
+            box-shadow: var(--sh3); min-width: 195px;
             overflow: hidden; display: none;
             border: 1px solid var(--border);
             animation: popIn 0.2s cubic-bezier(.32,1.2,.55,1);
         }
         .gear-menu.open { display: block; }
         .gear-menu-item {
-            width: 100%; padding: 14px 16px; border: none; background: none;
+            width: 100%; padding: 13px 15px; border: none; background: none;
             font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
             color: var(--text1); cursor: pointer; text-align: left;
             display: flex; align-items: center; gap: 10px;
@@ -84,13 +83,13 @@
         }
         .gear-menu-item:last-child { border-bottom: none; }
         .gear-menu-item:active { background: var(--g50); }
-        .gear-menu-item span { font-size: 18px; }
+        .gear-menu-item span { font-size: 16px; }
 
-        /* ── FILTRES ── */
+        /* ── FILTRES (dans sticky-bar, toujours visibles) ── */
         .filters-bar {
-            position: sticky; top: 0; z-index: 99;
-            background: var(--bg); padding: 8px 0 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: linear-gradient(160deg, #1a3d1f 0%, #2e7d32 55%, #43a047 100%);
+            padding: 0 0 10px;
+            box-shadow: 0 3px 16px rgba(0,0,0,0.15);
         }
         .filters {
             display: flex; gap: 8px; padding: 0 16px;
@@ -100,12 +99,13 @@
         .filters::-webkit-scrollbar { display: none; }
         .filter-chip {
             flex-shrink: 0; padding: 6px 14px; border-radius: 50px;
-            font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
-            border: 1.5px solid var(--border); background: var(--surface);
-            color: var(--text2); cursor: pointer; transition: all 0.18s;
-            box-shadow: var(--sh1);
+            font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12);
+            color: rgba(255,255,255,0.85);
+            cursor: pointer; transition: all 0.18s;
         }
-        .filter-chip.active { background: var(--g800); color: white; border-color: var(--g800); box-shadow: 0 3px 10px rgba(46,125,50,0.3); }
+        .filter-chip.active { background: white; color: var(--g800); border-color: white; }
 
         /* ── CONTAINER ── */
         .container { padding: 12px 16px; max-width: 600px; margin: 0 auto; }
@@ -261,8 +261,11 @@
 </head>
 <body>
 
-<header>
-    <div class="hdr-top">
+<!-- Sentinel pour IntersectionObserver -->
+<div id="scroll-sentinel" style="height:1px;margin-top:-1px"></div>
+
+<div class="sticky-bar">
+    <header style="position:relative">
         <div class="gear-wrapper" id="gearWrapper">
             <button class="gear-btn" id="gearBtn" onclick="toggleGearMenu()" title="Menu">⚙️</button>
             <div class="gear-menu" id="gearMenu">
@@ -274,23 +277,23 @@
                 </button>
             </div>
         </div>
-        <span class="hdr-emoji">🥦</span>
-        <h1>Rayon Fruits & Légumes</h1>
-        <div style="width:38px"></div><!-- spacer pour centrer le titre -->
-    </div>
-    <div class="hdr-search">
-        <span class="hdr-search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-        <button class="hdr-clear" id="clearSearch">✕</button>
-    </div>
-</header>
-
-<div class="filters-bar">
-    <div class="filters" id="filterChips">
-        <button class="filter-chip active" data-cat="" onclick="setFilter(this,'')">Tous</button>
-        <button class="filter-chip" data-cat="Fruits" onclick="setFilter(this,'Fruits')">🍎 Fruits</button>
-        <button class="filter-chip" data-cat="Légumes" onclick="setFilter(this,'Légumes')">🥬 Légumes</button>
-        <button class="filter-chip" data-cat="Autres" onclick="setFilter(this,'Autres')">🌿 Autres</button>
+        <div class="hdr-top" id="hdrTop">
+            <span class="hdr-emoji">🥦</span>
+            <h1>Rayon Fruits & Légumes</h1>
+        </div>
+        <div class="hdr-search">
+            <span class="hdr-search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+            <button class="hdr-clear" id="clearSearch">✕</button>
+        </div>
+    </header>
+    <div class="filters-bar">
+        <div class="filters" id="filterChips">
+            <button class="filter-chip active" data-cat="" onclick="setFilter(this,'')">Tous</button>
+            <button class="filter-chip" data-cat="Fruits" onclick="setFilter(this,'Fruits')">🍎 Fruits</button>
+            <button class="filter-chip" data-cat="Légumes" onclick="setFilter(this,'Légumes')">🥬 Légumes</button>
+            <button class="filter-chip" data-cat="Autres" onclick="setFilter(this,'Autres')">🌿 Autres</button>
+        </div>
     </div>
 </div>
 
@@ -995,6 +998,18 @@ function showToast(msg) {
     t.textContent = msg; t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
+
+// ===== HEADER COMPACT — IntersectionObserver (zéro boucle) =====
+(function() {
+    const sentinel = document.getElementById('scroll-sentinel');
+    const hdrTop   = document.getElementById('hdrTop');
+    if (!sentinel || !hdrTop) return;
+    const obs = new IntersectionObserver(function(entries) {
+        // Quand le sentinel n'est plus visible → on est scrollé → compact
+        hdrTop.classList.toggle('hidden', !entries[0].isIntersecting);
+    }, { threshold: 0 });
+    obs.observe(sentinel);
+})();
 
 // ===== INIT =====
 loadProducts();
