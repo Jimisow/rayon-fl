@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion Rayon Frais</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a3d1f">
+    <meta name="theme-color" content="#2e7d32">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Rayon Frais">
@@ -29,6 +29,7 @@
         }
         *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
         body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);padding-bottom:110px}
+        html,body{scroll-behavior:auto} /* on gère le scroll manuellement */
 
         /* ── STICKY BAR ── */
         .sticky-bar{position:sticky;top:0;z-index:100}
@@ -647,8 +648,10 @@ document.getElementById('searchInput').addEventListener('input', function() {
     const s = this.value;
     document.getElementById('clearSearch').style.display = s ? 'flex' : 'none';
     displayProducts(allProducts);
-    // Scroll tout en haut (sentinel inclus) pour voir le header complet
-    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll VRAIMENT tout en haut — header complet visible
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
 });
 document.getElementById('clearSearch').addEventListener('click', function() {
     document.getElementById('searchInput').value = '';
