@@ -15,343 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <style>
-        :root {
-            --g900:#1a3d1f; --g800:#2e7d32; --g700:#388e3c; --g500:#4caf50;
-            --g200:#c8e6c9; --g100:#e8f5e9; --g50:#f1f8f1;
-            --bg:#f0f4f0; --surface:#fff; --surface2:#f7faf7;
-            --t1:#1a2e1b; --t2:#4a6b4c; --t3:#8aaa8c;
-            --border:rgba(46,125,50,0.1);
-            --sh1:0 1px 4px rgba(0,0,0,0.06);
-            --sh2:0 4px 20px rgba(0,0,0,0.09);
-            --sh3:0 12px 40px rgba(0,0,0,0.14);
-            --r1:12px; --r2:18px; --r3:26px;
-        }
-        *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);padding-bottom:110px}
-        html,body{scroll-behavior:auto} /* on gère le scroll manuellement */
-
-        /* ── STICKY BAR ── */
-        .sticky-bar{position:sticky;top:0;z-index:100}
-
-        /* ── HEADER ── */
-        header{
-            background:#2e7d32;
-            padding:14px 16px 12px;position:relative;
-            box-shadow:0 2px 24px rgba(0,0,0,0.18);
-        }
-        .hdr-top{
-            display:flex;align-items:center;justify-content:center;gap:10px;
-            margin-bottom:10px;
-            max-height:50px;opacity:1;overflow:hidden;
-            transition:max-height .28s ease,opacity .2s ease,margin-bottom .28s ease;
-        }
-        .hdr-top.hidden{max-height:0;opacity:0;margin-bottom:0;pointer-events:none}
-        .hdr-emoji{font-size:22px;flex-shrink:0}
-        header h1{font-size:1.05rem;font-weight:700;color:white;letter-spacing:-.2px}
-
-        /* ── ENGRENAGE ── */
-        .gear-wrapper{position:absolute;top:12px;left:12px;z-index:10}
-        .planning-wrapper{position:absolute;top:12px;right:12px;z-index:10}
-        .planning-btn{
-            background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
-            width:30px;height:30px;border-radius:50%;font-size:14px;
-            cursor:pointer;display:flex;align-items:center;justify-content:center;
-            color:white;opacity:.8;transition:background .2s;
-        }
-        .planning-btn:active{background:rgba(255,255,255,0.28);opacity:1}
-        .gear-btn{
-            background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
-            width:30px;height:30px;border-radius:50%;font-size:14px;
-            cursor:pointer;display:flex;align-items:center;justify-content:center;
-            color:white;opacity:.8;transition:background .2s;
-        }
-        .gear-btn:active{background:rgba(255,255,255,0.28);opacity:1}
-        .gear-menu{
-            position:absolute;top:36px;left:0;
-            background:var(--surface);border-radius:var(--r2);
-            box-shadow:var(--sh3);min-width:195px;
-            overflow:hidden;display:none;border:1px solid var(--border);
-            animation:popIn .2s cubic-bezier(.32,1.2,.55,1);
-        }
-        .gear-menu.open{display:block}
-        .gear-menu-item{
-            width:100%;padding:13px 15px;border:none;background:none;
-            font-size:14px;font-weight:600;font-family:'Inter',sans-serif;
-            color:var(--t1);cursor:pointer;text-align:left;
-            display:flex;align-items:center;gap:10px;
-            transition:background .15s;border-bottom:1px solid var(--border);
-        }
-        .gear-menu-item:last-child{border-bottom:none}
-        .gear-menu-item:active{background:var(--g50)}
-        .gear-menu-item span{font-size:16px}
-
-        /* ── RECHERCHE ── */
-        .hdr-search{position:relative}
-        .hdr-search input{
-            width:100%;padding:10px 38px 10px 36px;
-            background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.25);
-            border-radius:50px;color:white;font-size:14px;font-family:'Inter',sans-serif;
-            outline:none;transition:background .2s,border-color .2s;
-        }
-        .hdr-search input::placeholder{color:rgba(255,255,255,.6)}
-        .hdr-search input:focus{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
-        .hdr-search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
-        .hdr-clear{
-            position:absolute;right:12px;top:50%;transform:translateY(-50%);
-            background:rgba(255,255,255,.25);border:none;width:20px;height:20px;
-            border-radius:50%;font-size:10px;color:white;cursor:pointer;
-            display:none;align-items:center;justify-content:center;font-weight:700;
-        }
-
-        /* ── FILTRES ── */
-        .filters-bar{
-            background:#2e7d32;
-            padding:0 0 10px;
-            box-shadow:0 3px 16px rgba(0,0,0,0.15);
-        }
-        .filters{
-            display:flex;gap:8px;padding:0 16px;
-            max-width:600px;margin:0 auto;
-            overflow-x:auto;scrollbar-width:none;
-        }
-        .filters::-webkit-scrollbar{display:none}
-        .filter-chip{
-            flex-shrink:0;padding:6px 14px;border-radius:50px;
-            font-size:12px;font-weight:600;font-family:'Inter',sans-serif;
-            border:1.5px solid rgba(255,255,255,0.25);
-            background:rgba(255,255,255,0.12);
-            color:rgba(255,255,255,0.85);cursor:pointer;transition:all .18s;
-        }
-        .filter-chip.active{background:white;color:var(--g800);border-color:white}
-
-        /* ── CONTAINER ── */
-        .container{padding:12px 16px;max-width:600px;margin:0 auto}
-        .list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-        .list-title{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3)}
-
-        /* ── CARTES ── */
-        .product-list{display:flex;flex-direction:column;gap:7px}
-        .swipe-wrapper{position:relative;overflow:hidden;border-radius:var(--r1)}
-        .swipe-actions{position:absolute;right:0;top:0;bottom:0;display:flex;z-index:1}
-        .swipe-btn{width:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;font-size:10px;font-weight:700;color:white;letter-spacing:.2px}
-        .swipe-btn.edit{background:#1976d2}
-        .swipe-btn.delete{background:#e53935;border-radius:0 var(--r1) var(--r1) 0}
-        .swipe-btn span{font-size:20px;line-height:1}
-        .product-card{
-            background:var(--surface);padding:12px 14px;
-            border-radius:var(--r1);border:1px solid var(--border);
-            box-shadow:var(--sh1);display:flex;justify-content:space-between;align-items:center;
-            cursor:pointer;transition:transform .25s cubic-bezier(.4,0,.2,1);
-            position:relative;z-index:2;user-select:none;-webkit-user-select:none;
-        }
-        .product-card.swiped{transform:translateX(-136px)}
-        .product-card:active{background:var(--g50)}
-        .card-left{display:flex;align-items:center;gap:12px}
-        .cat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
-        .cat-icon.fruits{background:#fff3e0}
-        .cat-icon.legumes{background:var(--g100)}
-        .cat-icon.autres{background:#f3e5f5}
-        .card-nom{font-weight:600;font-size:.93rem;color:var(--t1);letter-spacing:-.1px}
-        .cat-badge{font-size:.68rem;font-weight:700;letter-spacing:.5px;padding:2px 8px;border-radius:20px;margin-top:4px;display:inline-block}
-        .cat-badge.fruits{color:#bf360c;background:#fff3e0}
-        .cat-badge.legumes{color:var(--g800);background:var(--g100)}
-        .cat-badge.autres{color:#6a1b9a;background:#f3e5f5}
-        .card-arrow{color:var(--t3);font-size:20px;font-weight:300}
-
-        /* ── MODALS ── */
-        .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);z-index:1000;justify-content:center;align-items:flex-end}
-        #barcodeModal{align-items:center}
-        .modal-sheet{
-            background:var(--surface);width:100%;max-width:480px;
-            padding:12px 20px 36px;border-radius:var(--r3) var(--r3) 0 0;
-            position:relative;max-height:92vh;overflow-y:auto;
-            box-shadow:0 -4px 40px rgba(0,0,0,0.15);
-            animation:slideUp .3s cubic-bezier(.32,1.2,.55,1);
-        }
-        .modal-sheet.center{border-radius:var(--r3);margin:auto;width:90%;max-width:380px;padding:24px 20px 28px;animation:popIn .25s cubic-bezier(.32,1.2,.55,1)}
-        @keyframes slideUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
-        @keyframes popIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
-        .sheet-handle{width:38px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 18px}
-        .close-btn{position:absolute;top:14px;right:14px;width:28px;height:28px;background:var(--bg);border:none;border-radius:50%;font-size:14px;cursor:pointer;color:var(--t2);display:flex;align-items:center;justify-content:center}
-        .modal-title{font-size:1.05rem;font-weight:700;color:var(--t1);margin-bottom:18px}
-        .big-code{font-size:2rem;font-weight:700;letter-spacing:5px;margin:14px 0;color:var(--t1);text-align:center}
-        #barcode{max-width:100%;display:block;margin:0 auto}
-
-        /* ── FORMULAIRES ── */
-        .form-group{margin-bottom:13px}
-        .form-group label{display:block;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
-        .form-group input,.form-group select{
-            width:100%;padding:12px 13px;border:1.5px solid var(--border);
-            border-radius:var(--r1);font-size:15px;font-family:'Inter',sans-serif;
-            background:var(--surface2);color:var(--t1);outline:none;
-            transition:border-color .2s,box-shadow .2s,background .2s;appearance:none;
-        }
-        .form-group input:focus,.form-group select:focus{border-color:var(--g500);background:var(--surface);box-shadow:0 0 0 3px rgba(76,175,80,.12)}
-        .form-group select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238aaa8c' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;background-color:var(--surface2);padding-right:36px}
-        .form-group select:focus{background-color:var(--surface)}
-
-        /* ── BOUTONS ── */
-        .btn-primary{
-            width:100%;padding:14px;border:none;border-radius:var(--r1);
-            background:linear-gradient(135deg,var(--g800) 0%,var(--g700) 100%);
-            color:white;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;
-            cursor:pointer;margin-top:8px;
-            box-shadow:0 4px 14px rgba(46,125,50,.38);
-            transition:transform .12s,box-shadow .12s;
-        }
-        .btn-primary:active{transform:scale(.97);box-shadow:0 2px 6px rgba(46,125,50,.25)}
-        .btn-danger{padding:13px;background:#e53935;color:white;border:none;border-radius:var(--r1);font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;flex:1;transition:transform .12s}
-        .btn-danger:active{transform:scale(.97)}
-        .btn-secondary{padding:13px;background:var(--bg);color:var(--t2);border:1.5px solid var(--border);border-radius:var(--r1);font-size:15px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;flex:1}
-        .btn-copy{padding:13px;background:var(--g100);color:var(--g800);border:none;border-radius:var(--r1);font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;flex:1}
-        .btn-row{display:flex;gap:10px;margin-top:12px}
-        .btn-blue{background:linear-gradient(135deg,#1565c0,#1976d2)!important;box-shadow:0 4px 14px rgba(21,101,192,.35)!important}
-
-        /* ── TABS ── */
-        .tabs{display:flex;gap:5px;margin-bottom:16px;background:var(--bg);padding:4px;border-radius:var(--r1)}
-        .tab-btn{flex:1;padding:9px;border:none;background:transparent;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;color:var(--t2);transition:all .18s}
-        .tab-btn.active{background:var(--surface);color:var(--g800);box-shadow:var(--sh1)}
-        .scan-hint{font-size:12px;color:var(--t3);text-align:center;margin-top:8px}
-        .scan-detected{background:var(--g50);border:1px solid var(--g200);padding:9px 12px;border-radius:var(--r1);margin-bottom:12px;font-size:13px;color:var(--g800);font-weight:500}
-
-        /* ── BUFFER ── */
-        #jsonOutput{background:#161e17;color:#7ec882;font-family:'Menlo','Consolas',monospace;font-size:12px;padding:14px;border-radius:var(--r1);white-space:pre-wrap;word-break:break-all;min-height:70px;max-height:35vh;overflow-y:auto;margin-bottom:12px;line-height:1.65}
-        .buffer-count{text-align:center;font-size:12px;color:var(--t3);font-weight:600;letter-spacing:.4px;margin-bottom:12px}
-
-        /* ── BOUTON BUFFER FLOTTANT ── */
-        .btn-open-buffer{
-            position:fixed;bottom:30px;right:30px;
-            background:linear-gradient(135deg,#1565c0,#1976d2);
-            color:white;border:none;border-radius:50px;
-            padding:13px 20px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;
-            cursor:pointer;box-shadow:0 4px 16px rgba(21,101,192,.4);z-index:500;display:none;
-        }
-
-        /* ── RECAP PUBLISH ── */
-        .recap-section{margin-bottom:12px}
-        .recap-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:4px 10px;border-radius:6px;display:inline-block;margin-bottom:6px}
-        .recap-label.add{background:var(--g100);color:var(--g800)}
-        .recap-label.edit{background:#e3f2fd;color:#1565c0}
-        .recap-label.del{background:#ffebee;color:#c62828}
-        .recap-list{display:flex;flex-direction:column;gap:4px;max-height:26vh;overflow-y:auto}
-        .recap-item{font-size:13px;padding:7px 11px;border-radius:8px;line-height:1.4}
-        .recap-item.add{background:var(--g50);color:#1b5e20}
-        .recap-item.edit{background:#e8f3fd;color:#0d47a1}
-        .recap-item.del{background:#fff5f5;color:#c62828}
-        .dup-tag{background:#ffebee;color:#c62828;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:5px;font-weight:700}
-        .warn-box{background:#fffde7;border:1px solid #fff176;border-radius:8px;padding:9px 12px;font-size:13px;color:#5d4037;margin:8px 0}
-        .push-loading{text-align:center;padding:22px;font-size:14px;color:var(--g800);font-weight:500}
-        .error-box{color:#c62828;background:#ffebee;padding:13px;border-radius:8px;font-size:13px}
-
-        /* ── PARAMÈTRES ── */
-        .settings-info{background:#fffde7;border:1px solid #fff176;border-radius:var(--r1);padding:11px 13px;font-size:13px;color:#5d4037;margin-bottom:16px;line-height:1.6}
-        .settings-info a{color:var(--g800);font-weight:600}
-        .settings-divider{border:none;border-top:1px solid var(--border);margin:16px 0 14px}
-        .settings-section{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
-
-        /* ── TOAST ── */
-        .toast{
-            position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);
-            background:rgba(20,35,21,.93);color:white;
-            padding:11px 22px;border-radius:50px;
-            font-size:14px;font-weight:500;font-family:'Inter',sans-serif;
-            z-index:9999;opacity:0;transition:opacity .22s,transform .22s;
-            pointer-events:none;white-space:nowrap;
-            box-shadow:var(--sh2);
-        }
-        .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-        /* ── PWA ── */
-        #installBtn{display:none;background:linear-gradient(135deg,var(--g800),var(--g700));color:white;border:none;padding:13px;border-radius:var(--r1);margin-bottom:14px;width:100%;font-weight:700;cursor:pointer;font-size:1rem;box-shadow:0 4px 12px rgba(46,125,50,.3);font-family:'Inter',sans-serif}
-        #iosBanner{display:none;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r1);padding:11px 14px;margin-bottom:14px;font-size:.86rem;text-align:center;color:var(--t2)}
-
-        /* ── PLANNING ── */
-        .planning-day{
-            background:var(--surface);border-radius:var(--r1);
-            border:1px solid var(--border);box-shadow:var(--sh1);
-            padding:14px;margin-bottom:10px;
-        }
-        .planning-day.today{border-color:var(--g500);box-shadow:0 0 0 2px rgba(76,175,80,.18)}
-        .planning-day-title{
-            font-size:.95rem;font-weight:700;color:var(--t1);
-            display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
-        }
-        .planning-today-badge{
-            font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-            background:var(--g100);color:var(--g800);padding:3px 9px;border-radius:20px;
-        }
-        .planning-creneau{
-            display:flex;align-items:flex-start;gap:10px;padding:8px 0;
-            border-top:1px solid var(--border);
-        }
-        .planning-day .planning-creneau:first-of-type{border-top:none}
-        .planning-creneau-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center;margin-top:1px}
-        .planning-creneau-info{flex:1}
-        .planning-creneau-label{font-size:.85rem;font-weight:700;color:var(--t1)}
-        .planning-creneau-horaire{font-size:.78rem;color:var(--t3);font-weight:500;margin-left:6px}
-        .planning-employes{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
-        .planning-employe-tag{
-            font-size:.78rem;font-weight:600;color:var(--g800);
-            background:var(--g100);padding:2px 9px;border-radius:20px;
-        }
-        .planning-empty-day{font-size:.85rem;color:var(--t3);font-style:italic;padding:4px 0}
-        .planning-week-title{
-            font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-            color:var(--t3);text-align:center;margin-bottom:16px;
-        }
-
-        /* ── PLANNING SECTIONS ── */
-        .planning-section{margin-bottom:16px}
-        .planning-section-title{
-            display:flex;align-items:center;gap:8px;
-            font-size:.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-            color:var(--g800);margin-bottom:6px;padding:0 2px;
-        }
-        .planning-section-title span{font-size:16px}
-        .planning-section .planning-emp-row{border-top:1px solid var(--border)}
-        .planning-section .planning-emp-row:first-of-type{border-top:none}
-
-        /* ── PLANNING EMPLOYES ── */
-        .planning-emp-row{
-            display:flex;align-items:center;gap:12px;padding:10px 0;
-            border-top:1px solid var(--border);
-        }
-        .planning-day .planning-emp-row:first-of-type{border-top:none}
-        .planning-emp-avatar{
-            width:38px;height:38px;border-radius:50%;flex-shrink:0;
-            background:var(--g100);color:var(--g800);
-            display:flex;align-items:center;justify-content:center;
-            font-size:16px;font-weight:700;
-        }
-        .planning-emp-info{flex:1}
-        .planning-emp-nom{font-size:.95rem;font-weight:700;color:var(--t1);display:block;margin-bottom:5px}
-        .planning-emp-horaires{display:flex;flex-wrap:wrap;gap:6px}
-        .planning-horaire-tag{
-            font-size:.82rem;font-weight:600;color:var(--g800);
-            background:var(--g100);padding:3px 10px;border-radius:20px;
-        }
-
-        /* ── PLANNING NAV ── */
-        .planning-nav{
-            display:flex;align-items:center;justify-content:space-between;
-            margin-bottom:14px;padding:0 4px;
-        }
-        .planning-nav-btn{
-            width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);
-            background:var(--surface2);color:var(--g800);font-size:20px;font-weight:700;
-            cursor:pointer;display:flex;align-items:center;justify-content:center;
-            transition:background .15s;
-        }
-        .planning-nav-btn:active{background:var(--g100)}
-        .planning-nav-day{display:flex;flex-direction:column;align-items:center;gap:4px}
-        .planning-nav-jour{font-size:1.1rem;font-weight:700;color:var(--t1)}
-
-        /* ── EMPTY STATE ── */
-        .empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
-        .empty-state .empty-icon{font-size:48px;margin-bottom:12px}
-        .empty-state p{font-size:14px;font-weight:500}
-</style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -361,6 +25,15 @@
 
 <div class="sticky-bar">
     <header style="position:relative">
+        <div class="hdr-glow hdr-glow-1"></div>
+        <div class="hdr-glow hdr-glow-2"></div>
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+        <span class="hdr-fruit-img hdr-fruit-left">🍇</span>
+        <span class="hdr-fruit-img hdr-fruit-right">🥬</span>
         <div class="planning-wrapper">
             <button class="planning-btn" onclick="openPlanningModal()" title="Planning de la semaine">📅</button>
         </div>
@@ -376,13 +49,14 @@
             </div>
         </div>
         <div class="hdr-top" id="hdrTop">
-            <span class="hdr-emoji">🥦</span>
-            <h1>Rayon Fruits & Légumes</h1>
+            <h1>Fruits & Légumes</h1>
         </div>
         <div class="hdr-search">
-            <span class="hdr-search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="Rechercher un produit...">
-            <button class="hdr-clear" id="clearSearch">✕</button>
+            <div class="hdr-search-inner">
+                <span class="hdr-search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Rechercher un produit...">
+                <button class="hdr-clear" id="clearSearch">✕</button>
+            </div>
         </div>
     </header>
     <div class="filters-bar">
@@ -1278,10 +952,17 @@ function showToast(msg) {
         if (!keyboardOpen) initialVH = Math.max(initialVH, window.innerHeight);
     });
 
+    const filtersBar = document.querySelector('.filters-bar');
+
     const obs = new IntersectionObserver(function(entries) {
         // Ignorer si le clavier est ouvert (ça provoquerait un faux scroll)
         if (keyboardOpen) return;
-        hdrTop.classList.toggle('hidden', !entries[0].isIntersecting);
+        const hide = !entries[0].isIntersecting;
+        hdrTop.classList.toggle('hidden', hide);
+        // Rapprocher les filtres de la barre de recherche quand on scroll
+        if (filtersBar) {
+            filtersBar.style.paddingTop = hide ? '0' : '';
+        }
     }, { threshold: 0 });
     obs.observe(sentinel);
 })();
