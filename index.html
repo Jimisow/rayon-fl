@@ -52,6 +52,14 @@
 
         /* ── ENGRENAGE ── */
         .gear-wrapper{position:absolute;top:12px;left:12px;z-index:10}
+        .planning-wrapper{position:absolute;top:12px;right:12px;z-index:10}
+        .planning-btn{
+            background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+            width:30px;height:30px;border-radius:50%;font-size:14px;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            color:white;opacity:.8;transition:background .2s;
+        }
+        .planning-btn:active{background:rgba(255,255,255,0.28);opacity:1}
         .gear-btn{
             background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
             width:30px;height:30px;border-radius:50%;font-size:14px;
@@ -258,6 +266,87 @@
         #installBtn{display:none;background:linear-gradient(135deg,var(--g800),var(--g700));color:white;border:none;padding:13px;border-radius:var(--r1);margin-bottom:14px;width:100%;font-weight:700;cursor:pointer;font-size:1rem;box-shadow:0 4px 12px rgba(46,125,50,.3);font-family:'Inter',sans-serif}
         #iosBanner{display:none;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r1);padding:11px 14px;margin-bottom:14px;font-size:.86rem;text-align:center;color:var(--t2)}
 
+        /* ── PLANNING ── */
+        .planning-day{
+            background:var(--surface);border-radius:var(--r1);
+            border:1px solid var(--border);box-shadow:var(--sh1);
+            padding:14px;margin-bottom:10px;
+        }
+        .planning-day.today{border-color:var(--g500);box-shadow:0 0 0 2px rgba(76,175,80,.18)}
+        .planning-day-title{
+            font-size:.95rem;font-weight:700;color:var(--t1);
+            display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+        }
+        .planning-today-badge{
+            font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+            background:var(--g100);color:var(--g800);padding:3px 9px;border-radius:20px;
+        }
+        .planning-creneau{
+            display:flex;align-items:flex-start;gap:10px;padding:8px 0;
+            border-top:1px solid var(--border);
+        }
+        .planning-day .planning-creneau:first-of-type{border-top:none}
+        .planning-creneau-icon{font-size:18px;flex-shrink:0;width:24px;text-align:center;margin-top:1px}
+        .planning-creneau-info{flex:1}
+        .planning-creneau-label{font-size:.85rem;font-weight:700;color:var(--t1)}
+        .planning-creneau-horaire{font-size:.78rem;color:var(--t3);font-weight:500;margin-left:6px}
+        .planning-employes{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+        .planning-employe-tag{
+            font-size:.78rem;font-weight:600;color:var(--g800);
+            background:var(--g100);padding:2px 9px;border-radius:20px;
+        }
+        .planning-empty-day{font-size:.85rem;color:var(--t3);font-style:italic;padding:4px 0}
+        .planning-week-title{
+            font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+            color:var(--t3);text-align:center;margin-bottom:16px;
+        }
+
+        /* ── PLANNING SECTIONS ── */
+        .planning-section{margin-bottom:16px}
+        .planning-section-title{
+            display:flex;align-items:center;gap:8px;
+            font-size:.78rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+            color:var(--g800);margin-bottom:6px;padding:0 2px;
+        }
+        .planning-section-title span{font-size:16px}
+        .planning-section .planning-emp-row{border-top:1px solid var(--border)}
+        .planning-section .planning-emp-row:first-of-type{border-top:none}
+
+        /* ── PLANNING EMPLOYES ── */
+        .planning-emp-row{
+            display:flex;align-items:center;gap:12px;padding:10px 0;
+            border-top:1px solid var(--border);
+        }
+        .planning-day .planning-emp-row:first-of-type{border-top:none}
+        .planning-emp-avatar{
+            width:38px;height:38px;border-radius:50%;flex-shrink:0;
+            background:var(--g100);color:var(--g800);
+            display:flex;align-items:center;justify-content:center;
+            font-size:16px;font-weight:700;
+        }
+        .planning-emp-info{flex:1}
+        .planning-emp-nom{font-size:.95rem;font-weight:700;color:var(--t1);display:block;margin-bottom:5px}
+        .planning-emp-horaires{display:flex;flex-wrap:wrap;gap:6px}
+        .planning-horaire-tag{
+            font-size:.82rem;font-weight:600;color:var(--g800);
+            background:var(--g100);padding:3px 10px;border-radius:20px;
+        }
+
+        /* ── PLANNING NAV ── */
+        .planning-nav{
+            display:flex;align-items:center;justify-content:space-between;
+            margin-bottom:14px;padding:0 4px;
+        }
+        .planning-nav-btn{
+            width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);
+            background:var(--surface2);color:var(--g800);font-size:20px;font-weight:700;
+            cursor:pointer;display:flex;align-items:center;justify-content:center;
+            transition:background .15s;
+        }
+        .planning-nav-btn:active{background:var(--g100)}
+        .planning-nav-day{display:flex;flex-direction:column;align-items:center;gap:4px}
+        .planning-nav-jour{font-size:1.1rem;font-weight:700;color:var(--t1)}
+
         /* ── EMPTY STATE ── */
         .empty-state{text-align:center;padding:40px 20px;color:var(--t3)}
         .empty-state .empty-icon{font-size:48px;margin-bottom:12px}
@@ -272,6 +361,9 @@
 
 <div class="sticky-bar">
     <header style="position:relative">
+        <div class="planning-wrapper">
+            <button class="planning-btn" onclick="openPlanningModal()" title="Planning de la semaine">📅</button>
+        </div>
         <div class="gear-wrapper" id="gearWrapper">
             <button class="gear-btn" id="gearBtn" onclick="toggleGearMenu()" title="Menu">⚙️</button>
             <div class="gear-menu" id="gearMenu">
@@ -434,6 +526,18 @@
         <p class="settings-section">Mise à jour du cache</p>
         <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">L'app n'affiche pas les dernières modifications ? Videz le cache ici.</p>
         <button class="btn-primary btn-blue" id="bumpBtn" onclick="bumpSwManually()">🔄 Forcer la mise à jour (bump SW)</button>
+    </div>
+</div>
+
+<!-- Modal planning -->
+<div id="planningModal" class="modal">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <span class="close-btn" onclick="closePlanningModal()">x</span>
+        <p class="modal-title" style="text-align:center">Planning de l'equipe</p>
+        <div id="planningContent">
+            <div class="push-loading">Chargement du planning...</div>
+        </div>
     </div>
 </div>
 
@@ -981,6 +1085,155 @@ async function pushToGitHub() {
     }
 }
 
+// ===== PLANNING =====
+let planningData = null;
+let planningDayOffset = 0; // 0 = aujourd'hui, -1 = hier, +1 = demain...
+
+const MOIS_FR = ['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+const JOURS_NOMS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+// Determine Matin / Apres-midi / Fermeture / Inventaire selon les heures du creneau
+function getCategoriePlanning(horaire) {
+    const matches = (horaire || '').match(/(\d{1,2})h(\d{2})?/g);
+    if (!matches || !matches.length) return 'Apres-midi';
+
+    function toMinutes(str) {
+        const m = str.match(/(\d{1,2})h(\d{2})?/);
+        const hour = parseInt(m[1], 10);
+        const min = m[2] ? parseInt(m[2], 10) : 0;
+        return hour * 60 + min;
+    }
+
+    const startMinutes = toMinutes(matches[0]);
+    const endMinutes = matches.length > 1 ? toMinutes(matches[1]) : startMinutes;
+    const FERMETURE = 20 * 60 + 30; // 20h30
+
+    if (endMinutes > FERMETURE) return 'Inventaire';
+    if (endMinutes === FERMETURE) return 'Fermeture';
+
+    // Matin vs Apres-midi : on se base sur le milieu du creneau
+    const midMinutes = (startMinutes + endMinutes) / 2;
+    if (midMinutes < 12 * 60) return 'Matin';
+    return 'Apres-midi';
+}
+
+// Retourne une date YYYY-MM-DD pour aujourd'hui + offset jours (en heure locale)
+function getDateISO(offsetDays) {
+    const d = new Date();
+    d.setDate(d.getDate() + offsetDays);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return { iso: y + '-' + m + '-' + day, dateObj: d };
+}
+
+function formatDateFr(dateObj) {
+    const jourNom = JOURS_NOMS[dateObj.getDay()];
+    const jourNum = dateObj.getDate();
+    const moisNom = MOIS_FR[dateObj.getMonth()];
+    return jourNom + ' ' + jourNum + ' ' + moisNom;
+}
+
+async function loadPlanning() {
+    try {
+        const res = await fetch('planning.json');
+        if (!res.ok) throw new Error('Erreur ' + res.status);
+        planningData = await res.json();
+        return true;
+    } catch(e) {
+        planningData = null;
+        return false;
+    }
+}
+
+function renderPlanning() {
+    const el = document.getElementById('planningContent');
+    if (!planningData) {
+        el.innerHTML = '<div class="error-box">Impossible de charger le planning.<br><small>Verifiez que le fichier planning.json existe.</small></div>';
+        return;
+    }
+
+    const target = getDateISO(planningDayOffset);
+    const isToday = planningDayOffset === 0;
+    const jours = planningData.jours || [];
+    const j = jours.find(function(x){ return x.date === target.iso; });
+
+    let html = '';
+
+    // Navigation jour precedent / suivant
+    html += '<div class="planning-nav">';
+    html += '<button class="planning-nav-btn" onclick="changePlanningDay(-1)">' + String.fromCodePoint(0x2039) + '</button>';
+    html += '<div class="planning-nav-day">';
+    html += '<span class="planning-nav-jour">' + formatDateFr(target.dateObj) + '</span>';
+    if (isToday) html += '<span class="planning-today-badge">Aujourd\'hui</span>';
+    html += '</div>';
+    html += '<button class="planning-nav-btn" onclick="changePlanningDay(1)">' + String.fromCodePoint(0x203A) + '</button>';
+    html += '</div>';
+
+    const employes = (j && j.employes) || [];
+
+    // Regrouper chaque horaire dans Matin / Apres-midi / Fermeture / Inventaire
+    const groupes = { 'Matin': [], 'Apres-midi': [], 'Fermeture': [], 'Inventaire': [] };
+    employes.forEach(function(emp) {
+        const horaires = emp.horaires || [];
+        horaires.forEach(function(h) {
+            const cat = getCategoriePlanning(h);
+            groupes[cat].push({ nom: emp.nom, horaire: h });
+        });
+    });
+
+    const sections = [
+        { key: 'Matin', label: 'Matin', icon: String.fromCodePoint(0x1F305) },
+        { key: 'Apres-midi', label: 'Apres-midi', icon: String.fromCodePoint(0x2600) },
+        { key: 'Fermeture', label: 'Fermeture', icon: String.fromCodePoint(0x1F319) },
+        { key: 'Inventaire', label: 'Inventaire', icon: String.fromCodePoint(0x1F4E6) }
+    ];
+
+    let anySection = false;
+    sections.forEach(function(sec) {
+        const list = groupes[sec.key];
+        if (!list.length) return;
+        anySection = true;
+        html += '<div class="planning-section">';
+        html += '<div class="planning-section-title"><span>' + sec.icon + '</span>' + sec.label + '</div>';
+        list.forEach(function(item) {
+            html += '<div class="planning-emp-row">';
+            html += '<div class="planning-emp-avatar">' + escapeHtml((item.nom || '?').charAt(0).toUpperCase()) + '</div>';
+            html += '<div class="planning-emp-info">';
+            html += '<span class="planning-emp-nom">' + escapeHtml(item.nom || '') + '</span>';
+            html += '<div class="planning-emp-horaires"><span class="planning-horaire-tag">' + escapeHtml(item.horaire) + '</span></div>';
+            html += '</div></div>';
+        });
+        html += '</div>';
+    });
+
+    html += '<div class="planning-day today">';
+    if (!j) {
+        html += '<div class="planning-empty-day">Planning non renseigne pour cette date</div>';
+    } else if (!anySection) {
+        html += '<div class="planning-empty-day">Ferme / Personne de programme</div>';
+    }
+    html += '</div>';
+
+    el.innerHTML = html;
+}
+
+function changePlanningDay(delta) {
+    planningDayOffset += delta;
+    renderPlanning();
+}
+
+async function openPlanningModal() {
+    document.getElementById('planningModal').style.display = 'flex';
+    planningDayOffset = 0;
+    if (!planningData) {
+        document.getElementById('planningContent').innerHTML = '<div class="push-loading">Chargement du planning...</div>';
+        await loadPlanning();
+    }
+    renderPlanning();
+}
+function closePlanningModal() { document.getElementById('planningModal').style.display = 'none'; }
+
 // ===== MENU ENGRENAGE =====
 function toggleGearMenu() {
     document.getElementById('gearMenu').classList.toggle('open');
@@ -996,7 +1249,7 @@ document.addEventListener('click', function(e) {
 
 // ===== FERMER MODALS =====
 window.onclick = function(e) {
-    ['barcodeModal','bufferModal','scanModal','confirmModal','settingsModal','editModal','deleteModal'].forEach(function(id){
+    ['barcodeModal','bufferModal','scanModal','confirmModal','settingsModal','editModal','deleteModal','planningModal'].forEach(function(id){
         if (e.target === document.getElementById(id)) document.getElementById(id).style.display = 'none';
     });
 };

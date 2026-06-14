@@ -1,0 +1,684 @@
+{
+  "jours": [
+    {
+      "date": "2026-06-15",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h30 - 20h30"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "6h30 - 12h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 11h00",
+            "12h00 - 16h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-17",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "14h00 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-18",
+      "employes": [
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "14h30 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-19",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-20",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00",
+            "12h00 - 16h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00",
+            "12h00 - 16h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "14h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 18h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-21",
+      "employes": [
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "6h30 - 12h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "6h30 - 12h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-22",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h30 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 10h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 18h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-24",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 10h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "13h00 - 19h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-25",
+      "employes": [
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "14h30 - 20h30"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "14h30 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-26",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "13h30 - 19h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 18h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-27",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h00 - 17h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-28",
+      "employes": [
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "6h30 - 9h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "6h30 - 12h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-29",
+      "employes": [
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h30 - 12h30"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h30 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-06-30",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 11h00",
+            "12h00 - 16h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "13h00 - 23h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "13h00 - 23h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 23h00"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h00 - 13h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "13h00 - 23h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-01",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 13h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "11h00 - 17h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "11h00 - 18h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "5h00 - 13h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-02",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "14h30 - 20h30"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "14h30 - 20h30"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-03",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 11h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "12h00 - 18h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 18h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-04",
+      "employes": [
+        {
+          "nom": "Jean Lin",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Gregory",
+          "horaires": [
+            "5h00 - 11h00",
+            "12h00 - 16h00"
+          ]
+        },
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "5h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Cecile",
+          "horaires": [
+            "13h00 - 20h30"
+          ]
+        },
+        {
+          "nom": "Said",
+          "horaires": [
+            "6h00 - 12h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "12h00 - 19h00"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-07-05",
+      "employes": [
+        {
+          "nom": "Christophe",
+          "horaires": [
+            "6h30 - 12h00"
+          ]
+        },
+        {
+          "nom": "Jimi",
+          "horaires": [
+            "7h00 - 10h30"
+          ]
+        }
+      ]
+    }
+  ]
+}
