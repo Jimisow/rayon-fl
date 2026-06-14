@@ -49,7 +49,6 @@
   { "nom": "Coing urac au kg France cat 1", "code": "200464000000", "cat": "Fruits" },
   { "nom": "Combaura Reunion x2", "code": "205019000000", "cat": "Légumes" },
   { "nom": "Concombre", "code": "92450", "cat": "Légumes" },
-  { "nom": "Concombre", "code": "200432000000", "cat": "Légumes" },
   { "nom": "Coton mili", "code": "92422", "cat": "Légumes" },
   { "nom": "Courge Butternut au kg Reunion", "code": "200405000000", "cat": "Légumes" },
   { "nom": "Courgette", "code": "200445000000", "cat": "Légumes" },
@@ -62,7 +61,6 @@
   { "nom": "Figue de barbarie urac Italie", "code": "206492000000", "cat": "Fruits" },
   { "nom": "Figue noire fraiche", "code": "200463000000", "cat": "Fruits" },
   { "nom": "Fruit passion Reunion", "code": "200380000000", "cat": "Fruits" },
-  { "nom": "Gingembre", "code": "200432000000", "cat": "Autres" },
   { "nom": "Gingembre bot Sevetiaye", "code": "205726000000", "cat": "Autres" },
   { "nom": "Grenade earl/red Israel cat1", "code": "200461000000", "cat": "Fruits" },
   { "nom": "Gros Piment", "code": "200427000000", "cat": "Légumes" },
@@ -135,7 +133,7 @@
   { "nom": "Pomme granny", "code": "200384000000", "cat": "Fruits" },
   { "nom": "Pomme k (issable)", "code": "208707000000", "cat": "Fruits" },
   { "nom": "Pomme pink lady", "code": "200357000000", "cat": "Fruits" },
-  { "nom": "Pomme red chief", "code": "200385000000", "cat": "Fruits" },
+  { "nom": "Pomme Top Red", "code": "200385000000", "cat": "Fruits" },
   { "nom": "Pomme royal gala", "code": "200420000000", "cat": "Fruits" },
   { "nom": "Pomme ruby", "code": "207573000000", "cat": "Fruits" },
   { "nom": "Pomme story urac", "code": "206240000000", "cat": "Fruits" },
@@ -158,5 +156,6 @@
   { "nom": "Tomate grosse grappe", "code": "200435000000", "cat": "Légumes" },
   { "nom": "Tomate noire de crimee litee F", "code": "201765000000", "cat": "Légumes" },
   { "nom": "Tomate ronde zebree verte", "code": "206663000000", "cat": "Légumes" },
-  { "nom": "Topinambour urac France", "code": "205450000000", "cat": "Autres" }
+  { "nom": "Topinambour urac France", "code": "205450000000", "cat": "Autres" },
+  { "nom": "Romarin", "code": "92472", "cat": "Autres" }
 ]
