@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { collection, doc, query, where, onSnapshot, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import ConfirmDialog from "./ConfirmDialog";
@@ -8,6 +8,7 @@ import ConfirmDialog from "./ConfirmDialog";
 export default function RestockListCard({ list, isMine, onEdit }) {
   const [items, setItems] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const hadItemsRef = useRef(false);
 
   useEffect(() => {
     const q = query(collection(db, "reappro"), where("listId", "==", list.id));
@@ -20,11 +21,16 @@ export default function RestockListCard({ list, isMine, onEdit }) {
   }, [list.id]);
 
   useEffect(() => {
-    // Une liste qu'on vient de vider redémarre non partagée la prochaine fois.
-    if (isMine && items.length === 0 && list.partage) {
-      updateDoc(doc(db, "reapproLists", list.id), { partage: false });
+    if (items.length > 0) hadItemsRef.current = true;
+  }, [items.length]);
+
+  useEffect(() => {
+    // Une liste qu'on vient de vider (par soi-même ou via le partage) se supprime toute seule.
+    // On ne supprime jamais une liste tout juste créée qui n'a encore jamais eu d'article.
+    if (isMine && items.length === 0 && hadItemsRef.current) {
+      deleteDoc(doc(db, "reapproLists", list.id));
     }
-  }, [isMine, items.length, list.partage, list.id]);
+  }, [isMine, items.length, list.id]);
 
   if (items.length === 0) return null;
 
