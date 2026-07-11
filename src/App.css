@@ -264,6 +264,29 @@
   margin: -6px 0 4px;
 }
 
+.list-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.list-tab {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.list-tab-active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
 .restock-checklist {
   display: flex;
   flex-direction: column;
