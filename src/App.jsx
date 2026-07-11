@@ -9,6 +9,7 @@ import Products from "./screens/Products";
 import Planning from "./screens/Planning";
 import Notes from "./screens/Notes";
 import ProfileMenu from "./components/ProfileMenu";
+import RestockButton from "./components/RestockButton";
 
 const TABS = [
   { id: "accueil", label: "Accueil", emoji: "🏠" },
@@ -33,6 +34,7 @@ function MainApp() {
   return (
     <div className="app-shell">
       <ProfileMenu />
+      <RestockButton />
 
       <main className="app-content">
         {tab === "accueil" && <Home />}

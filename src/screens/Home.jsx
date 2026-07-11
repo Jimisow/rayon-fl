@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, limit, where, onSnapshot, doc } from "firebase/firestore";
+import { collection, query, orderBy, limit, where, onSnapshot, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import { useAdmin } from "../context/AdminContext";
-import { sameName } from "../utils/normalize";
+import { sameName, normalize } from "../utils/normalize";
 import { computeLabels } from "../utils/planningLabels";
-import { formatDate } from "../utils/formatDate";
 import { formatFullDate, formatDayLabel } from "../utils/formatDayLabel";
 import { toISODate } from "../utils/planningDates";
 import { messageOfTheDay } from "../utils/teamMessages";
+import NoteCard from "../components/NoteCard";
+import SharedRestockCard from "../components/SharedRestockCard";
 
 export default function Home() {
   const { user } = useAuth();
@@ -16,6 +17,9 @@ export default function Home() {
   const [todaysPlanning, setTodaysPlanning] = useState(null);
   const [notes, setNotes] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
+  const [reapproItems, setReapproItems] = useState([]);
+  const [partageListe, setPartageListe] = useState(false);
+  const [sharedUsers, setSharedUsers] = useState([]);
 
   const now = new Date();
   const todayISO = toISODate(now);
@@ -43,7 +47,41 @@ export default function Home() {
     return unsub;
   }, [isAdmin]);
 
+  useEffect(() => {
+    // Liste personnelle : chacun ne voit que ses propres articles à ramener.
+    const q = query(collection(db, "reappro"), where("prenom", "==", user));
+    const unsub = onSnapshot(q, (snap) => {
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      items.sort((a, b) => a.nom.localeCompare(b.nom));
+      setReapproItems(items);
+    });
+    return unsub;
+  }, [user]);
+
+  useEffect(() => {
+    const ref = doc(db, "users", normalize(user));
+    const unsub = onSnapshot(ref, (snap) => setPartageListe(!!snap.data()?.partageListe));
+    return unsub;
+  }, [user]);
+
+  useEffect(() => {
+    // Listes des autres membres qui ont choisi de partager la leur (dissociée de la sienne).
+    const unsub = onSnapshot(collection(db, "users"), (snap) => {
+      const others = snap.docs.map((d) => d.data()).filter((u) => u.partageListe && !sameName(u.prenom, user));
+      setSharedUsers(others);
+    });
+    return unsub;
+  }, [user]);
+
   const todaysEntries = (todaysPlanning?.entrees || []).filter((e) => sameName(e.prenom, user));
+
+  function marquerRamene(id) {
+    deleteDoc(doc(db, "reappro", id));
+  }
+
+  function togglePartageListe() {
+    updateDoc(doc(db, "users", normalize(user)), { partageListe: !partageListe });
+  }
 
   return (
     <div className="screen home-screen">
@@ -79,6 +117,33 @@ export default function Home() {
         })}
       </section>
 
+      {reapproItems.length > 0 && (
+        <section className="card">
+          <div className="card-header-row">
+            <h3>À ramener de la chambre froide</h3>
+            <button
+              className={`card-icon-btn ${partageListe ? "card-icon-btn-active" : ""}`}
+              onClick={togglePartageListe}
+              title={partageListe ? "Liste partagée avec l'équipe" : "Partager ma liste"}
+            >
+              📤
+            </button>
+          </div>
+          <div className="restock-checklist">
+            {reapproItems.map((item) => (
+              <label key={item.id} className="restock-row">
+                <input type="checkbox" checked={false} onChange={() => marquerRamene(item.id)} />
+                <span>{item.nom}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {sharedUsers.map((su) => (
+        <SharedRestockCard key={su.prenom} prenom={su.prenom} />
+      ))}
+
       {isAdmin && (
         <section className="card admin-summary">
           <h3>Propositions en attente</h3>
@@ -90,13 +155,7 @@ export default function Home() {
         <h3>Notes récentes</h3>
         {notes.length === 0 && <p className="empty-state">Aucune note pour le moment.</p>}
         {notes.map((n) => (
-          <div key={n.id} className="note-card">
-            <div className="note-header">
-              <strong>{n.auteur}</strong>
-              <span className="note-date">{formatDate(n.date)}</span>
-            </div>
-            <p>{n.contenu}</p>
-          </div>
+          <NoteCard key={n.id} note={n} />
         ))}
       </section>
     </div>
