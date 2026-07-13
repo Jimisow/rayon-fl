@@ -4,7 +4,7 @@ import { db } from "../firebase";
 import { useAuth } from "../context/AuthContext";
 import { useAdmin } from "../context/AdminContext";
 import { sameName } from "../utils/normalize";
-import { computeLabels } from "../utils/planningLabels";
+import { computeGroupLabels } from "../utils/groupShifts";
 import { formatFullDate, formatDayLabel } from "../utils/formatDayLabel";
 import { toISODate } from "../utils/planningDates";
 import { messageOfTheDay } from "../utils/teamMessages";
@@ -69,7 +69,9 @@ export default function Home() {
     return unsub;
   }, [user]);
 
-  const todaysEntries = (todaysPlanning?.entrees || []).filter((e) => sameName(e.prenom, user));
+  const todaysEntries = (todaysPlanning?.entrees || [])
+    .filter((e) => sameName(e.prenom, user))
+    .sort((a, b) => a.heureDebut.localeCompare(b.heureDebut));
 
   return (
     <div className="screen home-screen">
@@ -86,23 +88,25 @@ export default function Home() {
           <span className="card-date">{formatDayLabel(now)}</span>
         </div>
         {todaysEntries.length === 0 && <p className="empty-state">Aucun créneau aujourd'hui.</p>}
-        {todaysEntries.map((entry, idx) => {
-          const labels = computeLabels(entry.heureDebut, entry.heureFin);
-          return (
-            <div key={idx} className="today-slot">
-              <span className="today-heures">
-                {entry.heureDebut} - {entry.heureFin}
-              </span>
-              <div className="planning-badges">
-                {labels.map((label) => (
-                  <span key={label} className={`badge badge-${label}`}>
-                    {label}
-                  </span>
-                ))}
-              </div>
+        {todaysEntries.length > 0 && (
+          <div className="today-slot">
+            <span className="today-heures">
+              {todaysEntries.map((entry, i) => (
+                <span key={i}>
+                  {i > 0 && ", "}
+                  {entry.heureDebut} - {entry.heureFin}
+                </span>
+              ))}
+            </span>
+            <div className="planning-badges">
+              {computeGroupLabels(todaysEntries).map((label) => (
+                <span key={label} className={`badge badge-${label}`}>
+                  {label}
+                </span>
+              ))}
             </div>
-          );
-        })}
+          </div>
+        )}
       </section>
 
       {myLists.map((l) => (
