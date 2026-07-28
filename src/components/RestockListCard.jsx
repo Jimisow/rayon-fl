@@ -51,7 +51,7 @@ export default function RestockListCard({ list, isMine, onEdit }) {
   const title = isMine ? list.nom : `Liste de ${list.prenom} — ${list.nom}`;
 
   return (
-    <section className="card">
+    <section className={`card ${list.partage ? "card-shared" : ""}`}>
       <div className="card-header-row">
         <h3>{title}</h3>
 
@@ -82,7 +82,10 @@ export default function RestockListCard({ list, isMine, onEdit }) {
         {items.map((item) => (
           <label key={item.id} className="restock-row">
             <input type="checkbox" checked={false} onChange={() => marquerRamene(item.id)} />
-            <span>{item.nom}</span>
+            <span>
+              {item.nom}
+              {item.quantite > 1 && <span className="restock-qty-tag"> ×{item.quantite}</span>}
+            </span>
           </label>
         ))}
       </div>
